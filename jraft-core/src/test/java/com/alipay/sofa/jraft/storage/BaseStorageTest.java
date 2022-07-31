@@ -18,6 +18,7 @@ package com.alipay.sofa.jraft.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -40,7 +41,7 @@ public class BaseStorageTest {
     protected String writeData() throws IOException {
         File file = new File(this.path + File.separator + "data");
         String data = "jraft is great!";
-        FileUtils.writeStringToFile(file, data);
+        FileUtils.writeStringToFile(file, data, Charset.defaultCharset());
         return data;
     }
 

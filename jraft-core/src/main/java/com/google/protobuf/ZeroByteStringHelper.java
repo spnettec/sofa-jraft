@@ -33,6 +33,9 @@ public class ZeroByteStringHelper {
      * Wrap a byte array into a ByteString.
      */
     public static ByteString wrap(final byte[] bs) {
+        if (bs == null) {
+            return ByteString.EMPTY;
+        }
         return ByteString.wrap(bs);
     }
 

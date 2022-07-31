@@ -89,14 +89,14 @@ public class GrpcServer implements RpcServer {
             throw new IllegalStateException("grpc server has started");
         }
 
-        this.defaultExecutor = ThreadPoolUtil.newBuilder() //
-            .poolName(EXECUTOR_NAME) //
-            .enableMetric(true) //
-            .coreThreads(Math.min(20, GrpcRaftRpcFactory.RPC_SERVER_PROCESSOR_POOL_SIZE / 5)) //
-            .maximumThreads(GrpcRaftRpcFactory.RPC_SERVER_PROCESSOR_POOL_SIZE) //
-            .keepAliveSeconds(60L) //
-            .workQueue(new SynchronousQueue<>()) //
-            .threadFactory(new NamedThreadFactory(EXECUTOR_NAME + "-", true)) //
+        this.defaultExecutor = ThreadPoolUtil.newBuilder()
+            .poolName(EXECUTOR_NAME)
+            .enableMetric(true)
+            .coreThreads(Math.min(20, GrpcRaftRpcFactory.RPC_SERVER_PROCESSOR_POOL_SIZE / 5))
+            .maximumThreads(GrpcRaftRpcFactory.RPC_SERVER_PROCESSOR_POOL_SIZE)
+            .keepAliveSeconds(60L)
+            .workQueue(new SynchronousQueue<>())
+            .threadFactory(new NamedThreadFactory(EXECUTOR_NAME + "-", true))
             .rejectedHandler((r, executor) -> {
                 throw new RejectedExecutionException("[" + EXECUTOR_NAME + "], task " + r.toString() +
                         " rejected from " +
@@ -131,13 +131,13 @@ public class GrpcServer implements RpcServer {
     public void registerProcessor(final RpcProcessor processor) {
         final String interest = processor.interest();
         final Message reqIns = Requires.requireNonNull(this.parserClasses.get(interest), "null default instance: " + interest);
-        final MethodDescriptor<Message, Message> method = MethodDescriptor //
-                .<Message, Message>newBuilder() //
-                .setType(MethodDescriptor.MethodType.UNARY) //
+        final MethodDescriptor<Message, Message> method = MethodDescriptor
+                .<Message, Message>newBuilder()
+                .setType(MethodDescriptor.MethodType.UNARY)
                 .setFullMethodName(
-                    MethodDescriptor.generateFullMethodName(processor.interest(), GrpcRaftRpcFactory.FIXED_METHOD_NAME)) //
-                .setRequestMarshaller(ProtoUtils.marshaller(reqIns)) //
-                .setResponseMarshaller(ProtoUtils.marshaller(this.marshallerRegistry.findResponseInstanceByRequest(interest))) //
+                    MethodDescriptor.generateFullMethodName(processor.interest(), GrpcRaftRpcFactory.FIXED_METHOD_NAME))
+                .setRequestMarshaller(ProtoUtils.marshaller(reqIns))
+                .setResponseMarshaller(ProtoUtils.marshaller(this.marshallerRegistry.findResponseInstanceByRequest(interest)))
                 .build();
 
         final ServerCallHandler<Message, Message> handler = ServerCalls.asyncUnaryCall(
@@ -197,9 +197,9 @@ public class GrpcServer implements RpcServer {
                     }
                 });
 
-        final ServerServiceDefinition serviceDef = ServerServiceDefinition //
-                .builder(interest) //
-                .addMethod(method, handler) //
+        final ServerServiceDefinition serviceDef = ServerServiceDefinition
+                .builder(interest)
+                .addMethod(method, handler)
                 .build();
 
         this.handlerRegistry

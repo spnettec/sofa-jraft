@@ -88,11 +88,8 @@ public class GrpcRaftRpcFactory implements RaftRpcFactory {
         final int port = Requires.requireNonNull(endpoint, "endpoint").getPort();
         Requires.requireTrue(port > 0 && port < 0xFFFF, "port out of range:" + port);
         final MutableHandlerRegistry handlerRegistry = new MutableHandlerRegistry();
-        final Server server = ServerBuilder.forPort(port) //
-            .fallbackHandlerRegistry(handlerRegistry) //
-            .directExecutor() //
-            .maxInboundMessageSize(RPC_MAX_INBOUND_MESSAGE_SIZE) //
-            .build();
+        final Server server = ServerBuilder.forPort(port).fallbackHandlerRegistry(handlerRegistry).directExecutor()
+            .maxInboundMessageSize(RPC_MAX_INBOUND_MESSAGE_SIZE).build();
         final RpcServer rpcServer = new GrpcServer(server, handlerRegistry, this.parserClasses, getMarshallerRegistry());
         if (helper != null) {
             helper.config(rpcServer);

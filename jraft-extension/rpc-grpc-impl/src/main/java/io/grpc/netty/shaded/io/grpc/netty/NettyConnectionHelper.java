@@ -23,6 +23,7 @@ import com.alipay.sofa.jraft.util.internal.ReferenceFieldUpdater;
 import com.alipay.sofa.jraft.util.internal.Updaters;
 import io.grpc.internal.ServerStream;
 import io.grpc.netty.shaded.io.netty.channel.Channel;
+import io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext;
 import io.grpc.netty.shaded.io.netty.util.Attribute;
 import io.grpc.netty.shaded.io.netty.util.AttributeKey;
 
@@ -33,18 +34,29 @@ import io.grpc.netty.shaded.io.netty.util.AttributeKey;
  */
 public class NettyConnectionHelper {
 
-    private static final ReferenceFieldUpdater<NettyServerStream, Channel> CHANNEL_GETTER = Updaters
-                                                                                              .newReferenceFieldUpdater(
-                                                                                                  NettyServerStream.class,
-                                                                                                  "channel");
+    private static final ReferenceFieldUpdater<NettyServerStream, NettyServerStream.TransportState>  CHANNEL_GETTER = Updaters
+                                                                                                                        .newReferenceFieldUpdater(
+                                                                                                                            NettyServerStream.class,
+                                                                                                                            "state");
+    private static final ReferenceFieldUpdater<NettyServerStream.TransportState, NettyServerHandler> HANDLE_GETTER  = Updaters
+                                                                                                                        .newReferenceFieldUpdater(
+                                                                                                                            NettyServerStream.TransportState.class,
+                                                                                                                            "handler");
+    private static final ReferenceFieldUpdater<AbstractNettyHandler, ChannelHandlerContext>          CTX_GETTER     = Updaters
+                                                                                                                        .newReferenceFieldUpdater(
+                                                                                                                            AbstractNettyHandler.class,
+                                                                                                                            "ctx");
 
-    private static final AttributeKey<NettyConnection>                     NETTY_CONN_KEY = AttributeKey
-                                                                                              .valueOf("netty.conn");
+    private static final AttributeKey<NettyConnection>                                               NETTY_CONN_KEY = AttributeKey
+                                                                                                                        .valueOf("netty.conn");
 
     public static Connection getOrCreateConnection(final ServerStream stream,
                                                    final List<ConnectionClosedEventListener> listeners) {
         if (stream instanceof NettyServerStream) {
-            return attachChannel(CHANNEL_GETTER.get((NettyServerStream) stream), listeners);
+            NettyServerStream.TransportState state = CHANNEL_GETTER.get((NettyServerStream) stream);
+            AbstractNettyHandler handle = HANDLE_GETTER.get(state);
+            ChannelHandlerContext ctx = CTX_GETTER.get(handle);
+            return attachChannel(ctx.channel(), listeners);
         }
         return null;
     }
