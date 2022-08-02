@@ -41,7 +41,7 @@ public class GrpcResponseFactory implements RpcResponseFactory {
             return eBuilder.build();
         }
 
-        final Descriptors.FieldDescriptor errFd = parent.getDescriptorForType() //
+        final Descriptors.FieldDescriptor errFd = parent.getDescriptorForType()
             .findFieldByNumber(ERROR_RESPONSE_NUM);
         Requires.requireNonNull(errFd, "errFd");
         final Message.Builder builder = parent.toBuilder();
