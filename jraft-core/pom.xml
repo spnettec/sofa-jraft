@@ -105,11 +105,7 @@
             <artifactId>bolt</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
+            <groupId>com.caucho</groupId>
             <artifactId>hessian</artifactId>
         </dependency>
         <!-- metrics -->
