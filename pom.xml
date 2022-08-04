@@ -50,13 +50,13 @@
     <properties>
         <affinity.version>3.1.7</affinity.version>
         <asm.version>6.0</asm.version>
-        <bolt.version>1.6.5</bolt.version>
+        <bolt.version>1.6.5.B</bolt.version>
         <commons.compress.version>1.21</commons.compress.version>
         <commons.io.version>2.8.0</commons.io.version>
         <commons.lang.version>2.6</commons.lang.version>
         <disruptor.version>3.3.7</disruptor.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <hessian.version>3.3.11</hessian.version>
+        <hessian.version>4.0.4</hessian.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>1.8</java.source.version>

@@ -25,10 +25,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alipay.sofa.common.profile.StringUtil;
 import com.alipay.sofa.jraft.Lifecycle;
 import com.alipay.sofa.jraft.entity.LogEntry;
 import com.alipay.sofa.jraft.entity.codec.LogEntryDecoder;
@@ -158,12 +158,14 @@ public abstract class AbstractDB implements Lifecycle<LogStoreFactory> {
 
         @Override
         public LogEntry next() {
-            if (this.currentFileId == -1)
+            if (this.currentFileId == -1) {
                 return null;
+            }
             byte[] data;
             while (true) {
-                if (currentFileId >= this.files.length)
+                if (currentFileId >= this.files.length) {
                     return null;
+                }
                 final SegmentFile segmentFile = (SegmentFile) this.files[currentFileId];
                 if (segmentFile == null) {
                     return null;
@@ -287,7 +289,7 @@ public abstract class AbstractDB implements Lifecycle<LogStoreFactory> {
         }
         for (int fileIndex = 0; fileIndex < files.size(); fileIndex++) {
             final AbstractFile file = files.get(fileIndex);
-            if (StringUtil.equalsIgnoreCase(FilenameUtils.getName(file.getFilePath()), checkpoint.fileName)) {
+            if (StringUtils.equalsIgnoreCase(FilenameUtils.getName(file.getFilePath()), checkpoint.fileName)) {
                 return fileIndex;
             }
         }
