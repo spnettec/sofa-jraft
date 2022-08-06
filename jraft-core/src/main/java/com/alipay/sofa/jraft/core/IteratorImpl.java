@@ -46,10 +46,10 @@ public class IteratorImpl {
     private final long          firstClosureIndex;
     private long                currentIndex;
     private final long          committedIndex;
-    private long                fsmCommittedIndex;         // fsm commit index
-    private LogEntry            currEntry = new LogEntry(); // blank entry
+    private long                fsmCommittedIndex;              // fsm commit index
+    private LogEntry            currEntry = new LogEntry();     // blank entry
     private final AtomicLong    applyingIndex;
-    private RaftException       error;
+    private final RaftException error     = new RaftException(); ;
 
     public IteratorImpl(final FSMCallerImpl fsmCaller, final LogManager logManager, final List<Closure> closures,
                         final long firstClosureIndex, final long lastAppliedIndex, final long committedIndex,
@@ -87,7 +87,7 @@ public class IteratorImpl {
     }
 
     public boolean hasError() {
-        return this.error != null;
+        return !this.error.getStatus().isOk();
     }
 
     /**
@@ -102,14 +102,13 @@ public class IteratorImpl {
                 try {
                     this.currEntry = this.logManager.getEntry(this.currentIndex);
                     if (this.currEntry == null) {
-                        getOrCreateError().setType(EnumOutter.ErrorType.ERROR_TYPE_LOG);
-                        getOrCreateError().getStatus().setError(-1,
-                            "Fail to get entry at index=%d while committed_index=%d", this.currentIndex,
-                            this.committedIndex);
+                        this.error.setType(EnumOutter.ErrorType.ERROR_TYPE_LOG);
+                        this.error.getStatus().setError(-1, "Fail to get entry at index=%d while committed_index=%d",
+                            this.currentIndex, this.committedIndex);
                     }
                 } catch (final LogEntryCorruptedException e) {
-                    getOrCreateError().setType(EnumOutter.ErrorType.ERROR_TYPE_LOG);
-                    getOrCreateError().getStatus().setError(RaftError.EINVAL, e.getMessage());
+                    this.error.setType(EnumOutter.ErrorType.ERROR_TYPE_LOG);
+                    this.error.getStatus().setError(RaftError.EINVAL, e.getMessage());
                 }
                 this.applyingIndex.set(this.currentIndex);
             }
@@ -170,17 +169,11 @@ public class IteratorImpl {
             this.currentIndex = Math.max(this.currentIndex, fsmCommittedIndex + 1);
         }
         this.currEntry = null;
-        getOrCreateError().setType(EnumOutter.ErrorType.ERROR_TYPE_STATE_MACHINE);
-        getOrCreateError().getStatus().setError(RaftError.ESTATEMACHINE,
+        this.error.setType(EnumOutter.ErrorType.ERROR_TYPE_STATE_MACHINE);
+        this.error.getStatus().setError(RaftError.ESTATEMACHINE,
             "StateMachine meet critical error when applying one or more tasks since index=%d, %s", this.currentIndex,
             st != null ? st.toString() : "none");
 
     }
 
-    private RaftException getOrCreateError() {
-        if (this.error == null) {
-            this.error = new RaftException();
-        }
-        return this.error;
-    }
 }

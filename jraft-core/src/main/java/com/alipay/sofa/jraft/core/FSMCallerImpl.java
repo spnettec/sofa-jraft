@@ -168,7 +168,7 @@ public class FSMCallerImpl implements FSMCaller {
     private NodeImpl                                                node;
     private volatile TaskType                                       currTask;
     private final AtomicLong                                        applyingIndex;
-    private volatile RaftException                                  error;
+    private volatile RaftException                                  error                        = new RaftException();
     private Disruptor<ApplyTask>                                    disruptor;
     private RingBuffer<ApplyTask>                                   taskQueue;
     private volatile CountDownLatch                                 shutdownLatch;

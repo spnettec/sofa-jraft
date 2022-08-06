@@ -140,6 +140,7 @@
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
                 <version>${hessian.version}</version>
+                <scope>provided</scope>
             </dependency>
             <!-- log facade -->
             <dependency>

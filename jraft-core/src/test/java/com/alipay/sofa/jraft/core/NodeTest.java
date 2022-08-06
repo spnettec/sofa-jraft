@@ -316,38 +316,38 @@ public class NodeTest {
         }
 
         final AtomicInteger readIndexSuccesses = new AtomicInteger(0);
-        {
-            // Submit a read-index, wait for #onApply
-            readIndexLatch.await();
-            final CountDownLatch latch = new CountDownLatch(1);
-            node.readIndex(null, new ReadIndexClosure() {
 
-                @Override
-                public void run(final Status status, final long index, final byte[] reqCtx) {
-                    try {
-                        if (status.isOk()) {
-                            readIndexSuccesses.incrementAndGet();
-                        } else {
-                            assertTrue("Unexpected status: " + status,
-                                status.getErrorMsg().contains(errorMsg) || status.getRaftError() == RaftError.ETIMEDOUT
-                                        || status.getErrorMsg().contains("Invalid state for readIndex: STATE_ERROR"));
-                        }
-                    } finally {
-                        latch.countDown();
+        // Submit a read-index, wait for #onApply
+        readIndexLatch.await();
+        final CountDownLatch latch = new CountDownLatch(1);
+        node.readIndex(null, new ReadIndexClosure() {
+
+            @Override
+            public void run(final Status status, final long index, final byte[] reqCtx) {
+                try {
+                    if (status.isOk()) {
+                        readIndexSuccesses.incrementAndGet();
+                    } else {
+                        assertTrue("Unexpected status: " + status,
+                            status.getErrorMsg().contains(errorMsg) || status.getRaftError() == RaftError.ETIMEDOUT
+                                    || status.getErrorMsg().contains("Invalid state for readIndex: STATE_ERROR"));
                     }
+                } finally {
+                    latch.countDown();
                 }
-            });
-            // We have already submit a read-index request,
-            // notify #onApply can go right now
-            applyLatch.countDown();
-
-            // The state machine is in error state, the node should step down.
-            while (node.isLeader()) {
-                Thread.sleep(10);
             }
-            latch.await();
-            applyCompleteLatch.await();
+        });
+        // We have already submit a read-index request,
+        // notify #onApply can go right now
+        applyLatch.countDown();
+
+        // The state machine is in error state, the node should step down.
+        while (node.isLeader()) {
+            Thread.sleep(10);
         }
+        latch.await();
+        applyCompleteLatch.await();
+
         // No read-index request succeed.
         assertEquals(0, readIndexSuccesses.get());
         assertTrue(n - 1 >= currentValue.get());
@@ -2669,8 +2669,9 @@ public class NodeTest {
 
     /**
      * mock state machine that fails to load snapshot.
-     * @author boyan (boyan@alibaba-inc.com)
      *
+     * @author boyan (boyan@alibaba-inc.com)
+     * <p>
      * 2018-Apr-23 11:45:29 AM
      */
     static class MockFSM1 extends MockStateMachine {
@@ -3470,7 +3471,7 @@ public class NodeTest {
 
             TestUtils.runInThread(() -> {
                 try {
-                    for (int i = 0; i < 5000;) {
+                    for (int i = 0; i < 5000; ) {
                         cluster.waitLeader();
                         final Node leader = cluster.getLeader();
                         if (leader == null) {
@@ -3509,10 +3510,10 @@ public class NodeTest {
         final Node leader = cluster.getLeader();
         leader.changePeers(new Configuration(peers), done);
         try {
-        	 Status status = done.await();
-     	     assertTrue(status.getErrorMsg(), status.isOk());
-             cluster.ensureSame();
-             assertEquals(10, cluster.getFsms().size());
+            Status status = done.await();
+            assertTrue(status.getErrorMsg(), status.isOk());
+            cluster.ensureSame();
+            assertEquals(10, cluster.getFsms().size());
             for (final MockStateMachine fsm : cluster.getFsms()) {
                 final int logSize = fsm.getLogs().size();
                 assertTrue("logSize= " + logSize, logSize >= 5000 * threads);
