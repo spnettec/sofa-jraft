@@ -49,7 +49,7 @@ public class IteratorImpl {
     private long                fsmCommittedIndex;              // fsm commit index
     private LogEntry            currEntry = new LogEntry();     // blank entry
     private final AtomicLong    applyingIndex;
-    private final RaftException error     = new RaftException(); ;
+    private final RaftException error     = new RaftException();
 
     public IteratorImpl(final FSMCallerImpl fsmCaller, final LogManager logManager, final List<Closure> closures,
                         final long firstClosureIndex, final long lastAppliedIndex, final long committedIndex,
