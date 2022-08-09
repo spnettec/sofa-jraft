@@ -18,7 +18,7 @@ package com.alipay.sofa.jraft.core;
 
 import java.nio.file.Paths;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.alipay.sofa.jraft.option.RaftOptions;
 import com.alipay.sofa.jraft.option.StoreOptions;

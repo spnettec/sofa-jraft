@@ -16,18 +16,13 @@
  */
 package com.alipay.sofa.jraft.storage.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.alipay.sofa.jraft.rpc.ProtobufMsgFactory;
 import com.alipay.sofa.jraft.util.Bits;
 import com.alipay.sofa.jraft.util.Utils;
 import com.google.protobuf.Message;
+
+import java.io.*;
+import java.nio.file.AccessDeniedException;
 
 /**
  * A file to store protobuf message. Format:
@@ -37,8 +32,9 @@ import com.google.protobuf.Message;
  * <li> msg length(4 bytes)</li>
  * <li>msg data</li>
  * </ul>
- * @author boyan (boyan@alibaba-inc.com)
  *
+ * @author boyan (boyan@alibaba-inc.com)
+ * <p>
  * 2018-Mar-12 8:56:23 PM
  */
 public class ProtoBufFile {
@@ -47,7 +43,9 @@ public class ProtoBufFile {
         ProtobufMsgFactory.load();
     }
 
-    /** file path */
+    /**
+     * file path
+     */
     private final String path;
 
     public ProtoBufFile(final String path) {
@@ -100,6 +98,9 @@ public class ProtoBufFile {
     public boolean save(final Message msg, final boolean sync) throws IOException {
         // Write message into temp file
         final File file = new File(this.path + ".tmp");
+        if (!file.canWrite() && !file.setWritable(true)) {
+            //
+        }
         try (final FileOutputStream fOut = new FileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(fOut)) {
             final byte[] lenBytes = new byte[4];

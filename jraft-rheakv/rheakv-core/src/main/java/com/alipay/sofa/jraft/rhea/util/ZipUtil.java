@@ -16,29 +16,18 @@
  */
 package com.alipay.sofa.jraft.rhea.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.zip.CheckedInputStream;
-import java.util.zip.CheckedOutputStream;
-import java.util.zip.Checksum;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
+import com.alipay.sofa.jraft.util.Requires;
+import com.alipay.sofa.jraft.util.Utils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 
-import com.alipay.sofa.jraft.util.Requires;
-import com.alipay.sofa.jraft.util.Utils;
+import java.io.*;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Paths;
+import java.util.zip.*;
 
 /**
- *
  * @author jiachun.fjc
  */
 public final class ZipUtil {
@@ -82,6 +71,9 @@ public final class ZipUtil {
             while ((entry = zis.getNextEntry()) != null) {
                 final String fileName = entry.getName();
                 final File entryFile = new File(Paths.get(outputDir, fileName).toString());
+                if (!entryFile.canWrite() && !entryFile.setWritable(true)) {
+                    throw new AccessDeniedException("file:" + entryFile + " can't write");
+                }
                 FileUtils.forceMkdir(entryFile.getParentFile());
                 try (final FileOutputStream fos = new FileOutputStream(entryFile);
                         final BufferedOutputStream bos = new BufferedOutputStream(fos)) {
