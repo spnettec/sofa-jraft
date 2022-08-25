@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.Checksum;
@@ -39,6 +41,8 @@ import org.apache.commons.io.output.NullOutputStream;
 
 import com.alipay.sofa.jraft.util.Requires;
 import com.alipay.sofa.jraft.util.Utils;
+
+import static java.nio.file.attribute.PosixFilePermission.*;
 
 /**
  * @author jiachun.fjc
@@ -96,6 +100,7 @@ public final class ZipUtil {
                 }
                 final String fileName = entry.getName();
                 final File entryFile = new File(Paths.get(outputDir, fileName).toString());
+                Files.setPosixFilePermissions(entryFile.toPath(), EnumSet.of(OWNER_READ, OWNER_WRITE));
                 FileUtils.forceMkdir(entryFile.getParentFile());
                 long length = entryFile.length();
                 int bufferSize = (int) length;
