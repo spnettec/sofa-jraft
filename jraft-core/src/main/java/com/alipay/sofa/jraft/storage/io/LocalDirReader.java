@@ -16,23 +16,27 @@
  */
 package com.alipay.sofa.jraft.storage.io;
 
+import com.alipay.sofa.jraft.error.RetryAgainException;
+import com.alipay.sofa.jraft.util.ByteBufferCollector;
+import com.google.protobuf.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.util.EnumSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.alipay.sofa.jraft.error.RetryAgainException;
-import com.alipay.sofa.jraft.util.ByteBufferCollector;
-import com.google.protobuf.Message;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 /**
  * Read a file data form local dir by fileName.
  *
  * @author boyan (boyan@alibaba-inc.com)
- *
+ * <p>
  * 2018-Apr-06 9:25:12 PM
  */
 public class LocalDirReader implements FileReader {
@@ -60,10 +64,11 @@ public class LocalDirReader implements FileReader {
 
     @SuppressWarnings("unused")
     protected int readFileWithMeta(final ByteBufferCollector buf, final String fileName, final Message fileMeta,
-                                   long offset, final long maxCount) throws IOException, RetryAgainException {
+                                   long offset, final long maxCount) throws IOException {
         buf.expandIfNecessary();
         final String filePath = this.path + File.separator + fileName;
         final File file = new File(filePath);
+        Files.setPosixFilePermissions(file.toPath(), EnumSet.of(OWNER_READ, OWNER_WRITE));
         try (final FileInputStream input = new FileInputStream(file); final FileChannel fc = input.getChannel()) {
             int totalRead = 0;
             while (true) {
