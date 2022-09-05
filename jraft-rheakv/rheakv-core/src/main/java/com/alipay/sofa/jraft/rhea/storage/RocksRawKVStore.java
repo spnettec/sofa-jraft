@@ -16,15 +16,26 @@
  */
 package com.alipay.sofa.jraft.rhea.storage;
 
+import com.alipay.sofa.jraft.rhea.errors.StorageException;
+import com.alipay.sofa.jraft.rhea.metadata.Region;
+import com.alipay.sofa.jraft.rhea.options.RocksDBOptions;
+import com.alipay.sofa.jraft.rhea.rocks.support.RocksStatisticsCollector;
+import com.alipay.sofa.jraft.rhea.serialization.Serializer;
+import com.alipay.sofa.jraft.rhea.serialization.Serializers;
+import com.alipay.sofa.jraft.rhea.util.*;
+import com.alipay.sofa.jraft.rhea.util.concurrent.DistributedLock;
+import com.alipay.sofa.jraft.util.*;
+import com.alipay.sofa.jraft.util.concurrent.AdjustableSemaphore;
+import com.codahale.metrics.Timer;
+import org.apache.commons.io.FileUtils;
+import org.rocksdb.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,60 +44,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
-
-import org.apache.commons.io.FileUtils;
-import org.rocksdb.BackupEngine;
-import org.rocksdb.BackupInfo;
-import org.rocksdb.BackupableDBOptions;
-import org.rocksdb.BlockBasedTableConfig;
-import org.rocksdb.Checkpoint;
-import org.rocksdb.ColumnFamilyDescriptor;
-import org.rocksdb.ColumnFamilyHandle;
-import org.rocksdb.ColumnFamilyOptions;
-import org.rocksdb.DBOptions;
-import org.rocksdb.Env;
-import org.rocksdb.EnvOptions;
-import org.rocksdb.Holder;
-import org.rocksdb.IngestExternalFileOptions;
-import org.rocksdb.Options;
-import org.rocksdb.ReadOptions;
-import org.rocksdb.RestoreOptions;
-import org.rocksdb.RocksDB;
-import org.rocksdb.RocksDBException;
-import org.rocksdb.RocksIterator;
-import org.rocksdb.Snapshot;
-import org.rocksdb.SstFileWriter;
-import org.rocksdb.Statistics;
-import org.rocksdb.StatisticsCollectorCallback;
-import org.rocksdb.StatsCollectorInput;
-import org.rocksdb.StringAppendOperator;
-import org.rocksdb.WriteBatch;
-import org.rocksdb.WriteOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.alipay.sofa.jraft.rhea.errors.StorageException;
-import com.alipay.sofa.jraft.rhea.metadata.Region;
-import com.alipay.sofa.jraft.rhea.options.RocksDBOptions;
-import com.alipay.sofa.jraft.rhea.rocks.support.RocksStatisticsCollector;
-import com.alipay.sofa.jraft.rhea.serialization.Serializer;
-import com.alipay.sofa.jraft.rhea.serialization.Serializers;
-import com.alipay.sofa.jraft.rhea.util.ByteArray;
-import com.alipay.sofa.jraft.rhea.util.Lists;
-import com.alipay.sofa.jraft.rhea.util.Maps;
-import com.alipay.sofa.jraft.rhea.util.Partitions;
-import com.alipay.sofa.jraft.rhea.util.StackTraceUtil;
-import com.alipay.sofa.jraft.rhea.util.concurrent.DistributedLock;
-import com.alipay.sofa.jraft.util.Bits;
-import com.alipay.sofa.jraft.util.BytesUtil;
-import com.alipay.sofa.jraft.util.DebugStatistics;
-import com.alipay.sofa.jraft.util.Describer;
-import com.alipay.sofa.jraft.util.Requires;
-import com.alipay.sofa.jraft.util.StorageOptionsFactory;
-import com.alipay.sofa.jraft.util.SystemPropertyUtil;
-import com.alipay.sofa.jraft.util.Utils;
-import com.alipay.sofa.jraft.util.concurrent.AdjustableSemaphore;
-import com.codahale.metrics.Timer;
 
 /**
  * Local KV store based on RocksDB
@@ -269,10 +226,10 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
         final Lock readLock = this.readWriteLock.readLock();
         readLock.lock();
         try {
-            final Map<byte[], byte[]> rawMap = this.db.multiGet(keys);
+            final List<byte[]> rawMap = this.db.multiGetAsList(keys);
             final Map<ByteArray, byte[]> resultMap = Maps.newHashMapWithExpectedSize(rawMap.size());
-            for (final Map.Entry<byte[], byte[]> entry : rawMap.entrySet()) {
-                resultMap.put(ByteArray.wrap(entry.getKey()), entry.getValue());
+            for (int i = 0; i < rawMap.size(); i++) {
+                resultMap.put(ByteArray.wrap(keys.get(i)), rawMap.get(i));
             }
             setSuccess(closure, resultMap);
         } catch (final Exception e) {
@@ -454,7 +411,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                     }
                 } catch (final Exception e) {
                     LOG.error("Failed to [BATCH_RESET_SEQUENCE], [size = {}], {}.", segment.size(),
-                        StackTraceUtil.stackTrace(e));
+                            StackTraceUtil.stackTrace(e));
                     setCriticalError(Lists.transform(kvStates, KVState::getDone), "Fail to [BATCH_RESET_SEQUENCE]", e);
                 }
                 return null;
@@ -558,14 +515,14 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                         batch.put(key, op.getValue());
                     }
                     // first, get prev values
-                    final Map<byte[], byte[]> prevValMap = this.db.multiGet(keys);
+                    final List<byte[]> prevValMap = this.db.multiGetAsList(keys);
                     this.db.write(this.writeOptions, batch);
                     for (final KVState kvState : segment) {
-                        setSuccess(kvState.getDone(), prevValMap.get(kvState.getOp().getKey()));
+                        setSuccess(kvState.getDone(), prevValMap.get(keys.indexOf(kvState.getOp().getKey())));
                     }
                 } catch (final Exception e) {
                     LOG.error("Failed to [BATCH_GET_PUT], [size = {}] {}.", segment.size(),
-                        StackTraceUtil.stackTrace(e));
+                            StackTraceUtil.stackTrace(e));
                     setCriticalError(Lists.transform(kvStates, KVState::getDone), "Fail to [BATCH_GET_PUT]", e);
                 }
                 return null;
@@ -623,10 +580,11 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                         expects.put(key, expect);
                         updates.put(key, update);
                     }
-                    final Map<byte[], byte[]> prevValMap = this.db.multiGet(Lists.newArrayList(expects.keySet()));
+                    final List<byte[]> keys = Lists.newArrayList(expects.keySet());
+                    final List<byte[]> prevValMap = this.db.multiGetAsList(keys);
                     for (final KVState kvState : segment) {
                         final byte[] key = kvState.getOp().getKey();
-                        if (Arrays.equals(expects.get(key), prevValMap.get(key))) {
+                        if (Arrays.equals(expects.get(key), prevValMap.get(keys.indexOf(key)))) {
                             batch.put(key, updates.get(key));
                             setData(kvState.getDone(), Boolean.TRUE);
                         } else {
@@ -641,7 +599,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                     }
                 } catch (final Exception e) {
                     LOG.error("Failed to [BATCH_COMPARE_PUT], [size = {}] {}.", segment.size(),
-                        StackTraceUtil.stackTrace(e));
+                            StackTraceUtil.stackTrace(e));
                     setCriticalError(Lists.transform(kvStates, KVState::getDone), "Fail to [BATCH_COMPARE_PUT]", e);
                 }
                 return null;
@@ -734,9 +692,9 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
             for (final CASEntry entry : entries) {
                 keys.add(entry.getKey());
             }
-            final Map<byte[], byte[]> prevValMap = this.db.multiGet(keys);
+            final List<byte[]> prevValMap = this.db.multiGetAsList(keys);
             for (final CASEntry entry : entries) {
-                if (!Arrays.equals(entry.getExpect(), prevValMap.get(entry.getKey()))) {
+                if (!Arrays.equals(entry.getExpect(), prevValMap.get(keys.indexOf(entry.getKey())))) {
                     setSuccess(closure, Boolean.FALSE);
                     return;
                 }
@@ -802,10 +760,10 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                         keys.add(key);
                         values.put(key, value);
                     }
-                    final Map<byte[], byte[]> prevValMap = this.db.multiGet(keys);
+                    final List<byte[]> prevValMap = this.db.multiGetAsList(keys);
                     for (final KVState kvState : segment) {
                         final byte[] key = kvState.getOp().getKey();
-                        final byte[] prevVal = prevValMap.get(key);
+                        final byte[] prevVal = prevValMap.get(keys.indexOf(key));
                         if (prevVal == null) {
                             batch.put(key, values.get(key));
                         }
@@ -819,7 +777,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                     }
                 } catch (final Exception e) {
                     LOG.error("Failed to [BATCH_PUT_IF_ABSENT], [size = {}] {}.", segment.size(),
-                        StackTraceUtil.stackTrace(e));
+                            StackTraceUtil.stackTrace(e));
                     setCriticalError(Lists.transform(kvStates, KVState::getDone), "Fail to [BATCH_PUT_IF_ABSENT]", e);
                 }
                 return null;
@@ -1136,7 +1094,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                     }
                 } catch (final Exception e) {
                     LOG.error("Failed to [BATCH_DELETE], [size = {}], {}.", segment.size(),
-                        StackTraceUtil.stackTrace(e));
+                            StackTraceUtil.stackTrace(e));
                     setCriticalError(Lists.transform(kvStates, KVState::getDone), "Fail to [BATCH_DELETE]", e);
                 }
                 return null;
@@ -1423,7 +1381,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
         FileUtils.forceMkdir(new File(backupDBPath));
         final Lock writeLock = this.readWriteLock.writeLock();
         writeLock.lock();
-        try (final BackupableDBOptions backupOpts = createBackupDBOptions(backupDBPath);
+        try (final BackupEngineOptions backupOpts = createBackupDBOptions(backupDBPath);
              final BackupEngine backupEngine = BackupEngine.open(this.options.getEnv(), backupOpts)) {
             backupEngine.createNewBackup(this.db, true);
             final List<BackupInfo> backupInfoList = backupEngine.getBackupInfo();
@@ -1449,7 +1407,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
         final Lock writeLock = this.readWriteLock.writeLock();
         writeLock.lock();
         closeRocksDB();
-        try (final BackupableDBOptions backupOpts = createBackupDBOptions(backupDBPath);
+        try (final BackupEngineOptions backupOpts = createBackupDBOptions(backupDBPath);
                 final BackupEngine backupEngine = BackupEngine.open(this.options.getEnv(), backupOpts);
                 final RestoreOptions restoreOpts = new RestoreOptions(false)) {
             final String dbPath = this.opts.getDbPath();
@@ -1529,7 +1487,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
             final EnumMap<SstColumnFamily, File> sstFileTable = getSstFileTable(tempPath);
             final CompletableFuture<Void> snapshotFuture = new CompletableFuture<>();
             final CompletableFuture<Void> sstFuture = createSstFiles(sstFileTable, region.getStartKey(),
-                region.getEndKey(), executor);
+                    region.getEndKey(), executor);
             sstFuture.whenComplete((aVoid, throwable) -> {
                 if (throwable == null) {
                     try {
@@ -1640,8 +1598,8 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
 
     // Creates the backupable db options to control the behavior of
     // a backupable database.
-    private static BackupableDBOptions createBackupDBOptions(final String backupDBPath) {
-        return new BackupableDBOptions(backupDBPath) //
+    private static BackupEngineOptions createBackupDBOptions(final String backupDBPath) {
+        return new BackupEngineOptions(backupDBPath) //
             .setSync(true) //
             .setShareTableFiles(false); // don't share data between backups
     }

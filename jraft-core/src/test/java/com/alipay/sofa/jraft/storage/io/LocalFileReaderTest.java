@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.nio.file.NoSuchFileException;
 
 import com.alipay.sofa.jraft.util.BufferUtils;
 import org.apache.commons.io.FileUtils;
@@ -47,7 +48,7 @@ public class LocalFileReaderTest extends BaseStorageTest {
         try {
             this.fileReader.readFile(bufRef, "unfound", 0, 1024);
             fail();
-        } catch (final FileNotFoundException e) {
+        } catch (final FileNotFoundException | NoSuchFileException e) {
 
         }
 

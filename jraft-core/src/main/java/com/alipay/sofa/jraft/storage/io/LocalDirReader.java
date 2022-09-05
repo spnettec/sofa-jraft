@@ -68,6 +68,7 @@ public class LocalDirReader implements FileReader {
         buf.expandIfNecessary();
         final String filePath = this.path + File.separator + fileName;
         final File file = new File(filePath);
+        file.createNewFile();
         Files.setPosixFilePermissions(file.toPath(), EnumSet.of(OWNER_READ, OWNER_WRITE));
         try (final FileInputStream input = new FileInputStream(file); final FileChannel fc = input.getChannel()) {
             int totalRead = 0;
