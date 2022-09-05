@@ -104,11 +104,6 @@ public class ProtoBufFile {
     public boolean save(final Message msg, final boolean sync) throws IOException {
         // Write message into temp file
         final File file = new File(this.path + ".tmp");
-        FileUtils.forceMkdir(file.getParentFile());
-        if (file.createNewFile()) {
-            //
-        }
-        Files.setPosixFilePermissions(file.toPath(), EnumSet.of(OWNER_READ, OWNER_WRITE));
         try (final FileOutputStream fOut = new FileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(fOut)) {
             final byte[] lenBytes = new byte[4];
