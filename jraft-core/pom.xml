@@ -101,8 +101,8 @@
         </dependency>
         <!-- bolt -->
         <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>bolt</artifactId>
+            <groupId>com.github.heyoulin</groupId>
+            <artifactId>sofa-bolt</artifactId>
         </dependency>
         <dependency>
             <groupId>com.caucho</groupId>
