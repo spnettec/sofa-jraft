@@ -11,7 +11,7 @@
     <name>rpc-grpc-impl ${project.version}</name>
 
     <properties>
-        <io.grpc.version>1.48.0</io.grpc.version>
+        <io.grpc.version>1.49.0</io.grpc.version>
     </properties>
 
     <dependencies>
@@ -50,10 +50,12 @@
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

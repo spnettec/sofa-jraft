@@ -50,7 +50,7 @@
     <properties>
         <affinity.version>3.21ea83</affinity.version>
         <asm.version>9.3</asm.version>
-        <bolt.version>1.6.5.B</bolt.version>
+        <bolt.version>1.6.6.B</bolt.version>
         <commons.compress.version>1.21</commons.compress.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
@@ -59,9 +59,9 @@
         <hessian.version>4.0.66</hessian.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
-        <java.source.version>1.8</java.source.version>
-        <java.target.version>1.8</java.target.version>
-        <jctools.version>3.3.1-ea</jctools.version>
+        <java.source.version>11</java.source.version>
+        <java.target.version>11</java.target.version>
+        <jctools.version>4.0.1</jctools.version>
         <jmh.version>1.35</jmh.version>
         <jna.version>5.5.0</jna.version>
         <jsr305.version>3.0.2</jsr305.version>
@@ -70,22 +70,16 @@
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <metrics.version>4.2.11</metrics.version>
+        <metrics.version>4.2.12</metrics.version>
         <mockito.version>1.10.19</mockito.version>
         <powermock.version>1.7.4</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
-        <protobuf.version>3.21.4</protobuf.version>
+        <protobuf.version>3.21.5</protobuf.version>
         <protostuff.version>1.8.0</protostuff.version>
         <rocksdb.version>7.5.3</rocksdb.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.0</slf4j.version>
     </properties>
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://www.jitpack.io</url>
-        </repository>
-    </repositories>
     <dependencyManagement>
 
         <dependencies>
@@ -308,6 +302,12 @@
         </dependencies>
 
     </dependencyManagement>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://www.jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
