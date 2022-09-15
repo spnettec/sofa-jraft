@@ -98,15 +98,15 @@ public class HeartbeatSender implements Lifecycle<HeartbeatOptions> {
                                                + this.heartbeatRpcTimeoutMillis);
         }
         final String name = "rheakv-heartbeat-callback";
-        this.heartbeatRpcCallbackExecutor = ThreadPoolUtil.newBuilder() //
-            .poolName(name) //
-            .enableMetric(true) //
-            .coreThreads(4) //
-            .maximumThreads(4) //
-            .keepAliveSeconds(120L) //
-            .workQueue(new ArrayBlockingQueue<>(1024)) //
-            .threadFactory(new NamedThreadFactory(name, true)) //
-            .rejectedHandler(new DiscardOldPolicyWithReport(name)) //
+        this.heartbeatRpcCallbackExecutor = ThreadPoolUtil.newBuilder()
+            .poolName(name)
+            .enableMetric(true)
+            .coreThreads(4)
+            .maximumThreads(4)
+            .keepAliveSeconds(120L)
+            .workQueue(new ArrayBlockingQueue<>(1024))
+            .threadFactory(new NamedThreadFactory(name, true))
+            .rejectedHandler(new DiscardOldPolicyWithReport(name))
             .build();
         final long storeHeartbeatIntervalSeconds = opts.getStoreHeartbeatIntervalSeconds();
         final long regionHeartbeatIntervalSeconds = opts.getRegionHeartbeatIntervalSeconds();
