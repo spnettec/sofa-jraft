@@ -68,14 +68,14 @@
         <junit.version>4.13.2</junit.version>
         <log4j.version>2.18.0</log4j.version>
         <main.user.dir>${user.dir}</main.user.dir>
-        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <metrics.version>4.2.12</metrics.version>
         <mockito.version>1.10.19</mockito.version>
         <powermock.version>1.7.4</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
-        <protobuf.version>3.21.5</protobuf.version>
+        <protobuf.version>3.21.6</protobuf.version>
         <protostuff.version>1.8.0</protostuff.version>
         <rocksdb.version>7.5.3</rocksdb.version>
         <slf4j.version>2.0.0</slf4j.version>
@@ -382,8 +382,6 @@
                 <version>2.22.2</version>
                 <inherited>true</inherited>
                 <configuration>
-                    <!-- jacoco coveraage -->
-                    <argLine>-Xmx2048m ${coverageAgent}</argLine>
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*TestSuite*.java</include>
