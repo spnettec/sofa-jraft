@@ -18,6 +18,7 @@ package com.alipay.sofa.jraft.storage.file;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -39,7 +40,6 @@ import com.alipay.sofa.jraft.util.concurrent.ReferenceResource;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 
-import sun.nio.ch.DirectBuffer;
 
 /**
  * File parent class that wrappers uniform functions such as mmap(), flush() etc..
@@ -450,7 +450,7 @@ public abstract class AbstractFile extends ReferenceResource {
     }
 
     public void hintLoad() {
-        final long address = ((DirectBuffer) (this.mappedByteBuffer)).address();
+        final long address = getAddress(this.mappedByteBuffer);
         Pointer pointer = new Pointer(address);
 
         long beginTime = Utils.monotonicMs();
@@ -460,9 +460,19 @@ public abstract class AbstractFile extends ReferenceResource {
                 this.fileSize, ret, Utils.monotonicMs() - beginTime);
         }
     }
+    private Long getAddress(MappedByteBuffer mappedByteBuffer)
+    {
+        try {
+            Method method = mappedByteBuffer.getClass().getDeclaredMethod("address");
+            method.setAccessible(true);
+            return (Long)method.invoke(mappedByteBuffer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void hintUnload() {
-        final long address = ((DirectBuffer) (this.mappedByteBuffer)).address();
+        final long address = getAddress(this.mappedByteBuffer);
         Pointer pointer = new Pointer(address);
 
         long beginTime = Utils.monotonicMs();
