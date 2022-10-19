@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.core.NodeImpl;
 import com.alipay.sofa.jraft.entity.PeerId;
@@ -58,7 +58,7 @@ public class LocalRaftMetaStorageTest extends BaseStorageTest {
     public void setup() throws Exception {
         super.setup();
         this.raftMetaStorage = new LocalRaftMetaStorage(this.path, new RaftOptions());
-        Mockito.when(this.node.getNodeMetrics()).thenReturn(null);
+        Mockito.lenient().when(this.node.getNodeMetrics()).thenReturn(null);
         assertTrue(this.raftMetaStorage.init(newOptions()));
     }
 
@@ -86,7 +86,7 @@ public class LocalRaftMetaStorageTest extends BaseStorageTest {
         Assert.assertEquals(new PeerId("localhost", 8083), this.raftMetaStorage.getVotedFor());
 
         this.raftMetaStorage = new LocalRaftMetaStorage(this.path, new RaftOptions());
-        Mockito.when(this.node.getNodeMetrics()).thenReturn(null);
+        Mockito.lenient().when(this.node.getNodeMetrics()).thenReturn(null);
         this.raftMetaStorage.init(newOptions());
         assertEquals(100, this.raftMetaStorage.getTerm());
         Assert.assertEquals(new PeerId("localhost", 8083), this.raftMetaStorage.getVotedFor());

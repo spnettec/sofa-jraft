@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.JRaftUtils;
 import com.alipay.sofa.jraft.Node;
@@ -124,11 +124,11 @@ public class BaseCliRequestProcessorTest {
 
     private Node mockNode(boolean disableCli) {
         Node node = Mockito.mock(Node.class);
-        Mockito.when(node.getGroupId()).thenReturn("test");
-        Mockito.when(node.getNodeId()).thenReturn(new NodeId("test", this.peer.copy()));
+        Mockito.lenient().when(node.getGroupId()).thenReturn("test");
+        Mockito.lenient().when(node.getNodeId()).thenReturn(new NodeId("test", this.peer.copy()));
         NodeOptions opts = new NodeOptions();
         opts.setDisableCli(disableCli);
-        Mockito.when(node.getOptions()).thenReturn(opts);
+        Mockito.lenient().when(node.getOptions()).thenReturn(opts);
         NodeManager.getInstance().addAddress(this.peer.getEndpoint());
         NodeManager.getInstance().add(node);
         return node;
@@ -157,17 +157,17 @@ public class BaseCliRequestProcessorTest {
     @Test
     public void testManyNodes() {
         Node node1 = Mockito.mock(Node.class);
-        Mockito.when(node1.getGroupId()).thenReturn("test");
-        Mockito.when(node1.getNodeId()).thenReturn(new NodeId("test", new PeerId("localhost", 8081)));
+        Mockito.lenient().when(node1.getGroupId()).thenReturn("test");
+        Mockito.lenient().when(node1.getNodeId()).thenReturn(new NodeId("test", new PeerId("localhost", 8081)));
         NodeOptions opts = new NodeOptions();
-        Mockito.when(node1.getOptions()).thenReturn(opts);
+        Mockito.lenient().when(node1.getOptions()).thenReturn(opts);
         NodeManager.getInstance().addAddress(new Endpoint("localhost", 8081));
         NodeManager.getInstance().add(node1);
 
         Node node2 = Mockito.mock(Node.class);
-        Mockito.when(node2.getGroupId()).thenReturn("test");
-        Mockito.when(node2.getNodeId()).thenReturn(new NodeId("test", new PeerId("localhost", 8082)));
-        Mockito.when(node2.getOptions()).thenReturn(opts);
+        Mockito.lenient().when(node2.getGroupId()).thenReturn("test");
+        Mockito.lenient().when(node2.getNodeId()).thenReturn(new NodeId("test", new PeerId("localhost", 8082)));
+        Mockito.lenient().when(node2.getOptions()).thenReturn(opts);
         NodeManager.getInstance().addAddress(new Endpoint("localhost", 8082));
         NodeManager.getInstance().add(node2);
 

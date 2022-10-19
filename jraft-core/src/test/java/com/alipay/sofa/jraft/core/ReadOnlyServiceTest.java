@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.FSMCaller;
 import com.alipay.sofa.jraft.Status;
@@ -71,11 +71,11 @@ public class ReadOnlyServiceTest {
         opts.setFsmCaller(this.fsmCaller);
         opts.setNode(this.node);
         opts.setRaftOptions(new RaftOptions());
-        Mockito.when(this.node.getNodeMetrics()).thenReturn(new NodeMetrics(false));
-        Mockito.when(this.node.getOptions()).thenReturn(new NodeOptions());
-        Mockito.when(this.node.getGroupId()).thenReturn(GROUP_ID);
-        Mockito.when(this.node.getServerId()).thenReturn(new PeerId("localhost:8081", 0));
-        Mockito.when(this.node.getRaftOptions()).thenReturn(new RaftOptions());
+        Mockito.lenient().when(this.node.getNodeMetrics()).thenReturn(new NodeMetrics(false));
+        Mockito.lenient().when(this.node.getOptions()).thenReturn(new NodeOptions());
+        Mockito.lenient().when(this.node.getGroupId()).thenReturn(GROUP_ID);
+        Mockito.lenient().when(this.node.getServerId()).thenReturn(new PeerId("localhost:8081", 0));
+        Mockito.lenient().when(this.node.getRaftOptions()).thenReturn(new RaftOptions());
 
         assertTrue(this.readOnlyServiceImpl.init(opts));
     }
@@ -100,14 +100,9 @@ public class ReadOnlyServiceTest {
         Mockito.verify(this.node).handleReadIndexRequest(Mockito.argThat(new ArgumentMatcher<ReadIndexRequest>() {
 
             @Override
-            public boolean matches(final Object argument) {
-                if (argument instanceof ReadIndexRequest) {
-                    final ReadIndexRequest req = (ReadIndexRequest) argument;
-                    return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
-                           && req.getEntriesCount() == 1
-                           && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
-                }
-                return false;
+            public boolean matches(ReadIndexRequest req) {
+                return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
+                       && req.getEntriesCount() == 1 && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
             }
 
         }), Mockito.any());
@@ -134,14 +129,9 @@ public class ReadOnlyServiceTest {
         Mockito.verify(this.node).handleReadIndexRequest(Mockito.argThat(new ArgumentMatcher<ReadIndexRequest>() {
 
             @Override
-            public boolean matches(final Object argument) {
-                if (argument instanceof ReadIndexRequest) {
-                    final ReadIndexRequest req = (ReadIndexRequest) argument;
-                    return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
-                           && req.getEntriesCount() == 1
-                           && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
-                }
-                return false;
+            public boolean matches(ReadIndexRequest req) {
+                return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
+                       && req.getEntriesCount() == 1 && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
             }
 
         }), closureCaptor.capture());
@@ -160,7 +150,7 @@ public class ReadOnlyServiceTest {
 
     @Test
     public void testAddRequestOnResponseFailure() throws Exception {
-        Mockito.when(this.fsmCaller.getLastAppliedIndex()).thenReturn(2L);
+        Mockito.lenient().when(this.fsmCaller.getLastAppliedIndex()).thenReturn(2L);
 
         final byte[] requestContext = TestUtils.getRandomBytes();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -181,14 +171,9 @@ public class ReadOnlyServiceTest {
         Mockito.verify(this.node).handleReadIndexRequest(Mockito.argThat(new ArgumentMatcher<ReadIndexRequest>() {
 
             @Override
-            public boolean matches(final Object argument) {
-                if (argument instanceof ReadIndexRequest) {
-                    final ReadIndexRequest req = (ReadIndexRequest) argument;
-                    return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
-                           && req.getEntriesCount() == 1
-                           && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
-                }
-                return false;
+            public boolean matches(ReadIndexRequest req) {
+                return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
+                       && req.getEntriesCount() == 1 && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
             }
 
         }), closureCaptor.capture());
@@ -205,7 +190,7 @@ public class ReadOnlyServiceTest {
     @Test
     public void testAddRequestOnResponseSuccess() throws Exception {
 
-        Mockito.when(this.fsmCaller.getLastAppliedIndex()).thenReturn(2L);
+        Mockito.lenient().when(this.fsmCaller.getLastAppliedIndex()).thenReturn(2L);
 
         final byte[] requestContext = TestUtils.getRandomBytes();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -226,14 +211,9 @@ public class ReadOnlyServiceTest {
         Mockito.verify(this.node).handleReadIndexRequest(Mockito.argThat(new ArgumentMatcher<ReadIndexRequest>() {
 
             @Override
-            public boolean matches(final Object argument) {
-                if (argument instanceof ReadIndexRequest) {
-                    final ReadIndexRequest req = (ReadIndexRequest) argument;
-                    return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
-                           && req.getEntriesCount() == 1
-                           && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
-                }
-                return false;
+            public boolean matches(ReadIndexRequest req) {
+                return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
+                       && req.getEntriesCount() == 1 && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
             }
 
         }), closureCaptor.capture());
@@ -274,7 +254,7 @@ public class ReadOnlyServiceTest {
 
     @Test
     public void testOverMaxReadIndexLag() throws Exception {
-        Mockito.when(this.fsmCaller.getLastAppliedIndex()).thenReturn(1L);
+        Mockito.lenient().when(this.fsmCaller.getLastAppliedIndex()).thenReturn(1L);
         this.readOnlyServiceImpl.getRaftOptions().setMaxReadIndexLag(50);
 
         final byte[] requestContext = TestUtils.getRandomBytes();
@@ -298,14 +278,9 @@ public class ReadOnlyServiceTest {
         Mockito.verify(this.node).handleReadIndexRequest(Mockito.argThat(new ArgumentMatcher<ReadIndexRequest>() {
 
             @Override
-            public boolean matches(final Object argument) {
-                if (argument instanceof ReadIndexRequest) {
-                    final ReadIndexRequest req = (ReadIndexRequest) argument;
-                    return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
-                           && req.getEntriesCount() == 1
-                           && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
-                }
-                return false;
+            public boolean matches(ReadIndexRequest req) {
+                return req.getGroupId().equals("test") && req.getServerId().equals("localhost:8081:0")
+                       && req.getEntriesCount() == 1 && Arrays.equals(requestContext, req.getEntries(0).toByteArray());
             }
 
         }), closureCaptor.capture());

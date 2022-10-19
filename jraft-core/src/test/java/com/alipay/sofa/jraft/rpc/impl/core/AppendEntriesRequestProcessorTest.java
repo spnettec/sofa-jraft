@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class AppendEntriesRequestProcessorTest extends BaseNodeRequestProcessorTest<AppendEntriesRequest> {
 
@@ -75,7 +75,7 @@ public class AppendEntriesRequestProcessorTest extends BaseNodeRequestProcessorT
         };
         Set<PeerPair> pairs = new ConcurrentHashSet<>();
         pairs.add(new PeerPair(this.peerIdStr, this.serverId));
-        Mockito.when(this.conn.getAttribute(AppendEntriesRequestProcessor.PAIR_ATTR)).thenReturn(pairs);
+        Mockito.lenient().when(this.conn.getAttribute(AppendEntriesRequestProcessor.PAIR_ATTR)).thenReturn(pairs);
     }
 
     private ExecutorService executor;
@@ -189,7 +189,7 @@ public class AppendEntriesRequestProcessorTest extends BaseNodeRequestProcessorT
         final PeerPair pair = processor.pairOf(this.peerIdStr, this.serverId);
         final PingRequest msg = TestUtils.createPingRequest();
         final Connection conn = Mockito.mock(Connection.class);
-        Mockito.when(asyncContext.getConnection()).thenReturn(conn);
+        Mockito.lenient().when(asyncContext.getConnection()).thenReturn(conn);
         final PeerRequestContext ctx = processor.getOrCreatePeerRequestContext(this.groupId, pair, conn);
         assertNotNull(ctx);
         processor.sendSequenceResponse(this.groupId, pair, 1, asyncContext, msg);

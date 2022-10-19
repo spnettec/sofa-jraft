@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Closure;
 import com.alipay.sofa.jraft.Status;
@@ -34,6 +33,7 @@ import com.alipay.sofa.jraft.entity.EnumOutter;
 import com.alipay.sofa.jraft.entity.LogEntry;
 import com.alipay.sofa.jraft.error.RaftError;
 import com.alipay.sofa.jraft.storage.LogManager;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -57,8 +57,8 @@ public class IteratorImplTest {
 
     @Before
     public void setup() {
-        Mockito.when(this.node.getGroupId()).thenReturn(GROUP_ID);
-        Mockito.when(this.fsmCaller.getNode()).thenReturn(node);
+        Mockito.lenient().when(this.node.getGroupId()).thenReturn(GROUP_ID);
+        Mockito.lenient().when(this.fsmCaller.getNode()).thenReturn(node);
         this.applyingIndex = new AtomicLong(0);
         this.closures = new ArrayList<>();
         for (int i = 0; i < 11; i++) {
@@ -66,7 +66,7 @@ public class IteratorImplTest {
             final LogEntry log = new LogEntry(EnumOutter.EntryType.ENTRY_TYPE_NO_OP);
             log.getId().setIndex(i);
             log.getId().setTerm(1);
-            Mockito.when(this.logManager.getEntry(i)).thenReturn(log);
+            Mockito.lenient().when(this.logManager.getEntry(i)).thenReturn(log);
         }
         this.iter = new IteratorImpl(fsmCaller, logManager, closures, 0L, 0L, 10L, applyingIndex);
     }

@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Closure;
 import com.alipay.sofa.jraft.Iterator;
@@ -68,7 +68,7 @@ public class IteratorTest {
             log.getId().setIndex(i);
             log.getId().setTerm(1);
             log.setData(ByteBuffer.allocate(i));
-            Mockito.when(this.logManager.getEntry(i)).thenReturn(log);
+            Mockito.lenient().when(this.logManager.getEntry(i)).thenReturn(log);
         }
         this.iterImpl = new IteratorImpl(fsmCaller, logManager, closures, 0L, 0L, 10L, applyingIndex);
         this.iter = new IteratorWrapper(iterImpl);
@@ -136,7 +136,7 @@ public class IteratorTest {
     @Test
     public void testCommitAndSnapshotSync() {
         NodeImpl node = Mockito.mock(NodeImpl.class);
-        Mockito.when(this.fsmCaller.getNode()).thenReturn(node);
+        Mockito.lenient().when(this.fsmCaller.getNode()).thenReturn(node);
         int i = 1;
         while (iter.hasNext()) {
             assertEquals(i, iter.getIndex());

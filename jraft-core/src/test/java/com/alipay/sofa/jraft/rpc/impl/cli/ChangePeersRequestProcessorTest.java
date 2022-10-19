@@ -29,7 +29,7 @@ import com.alipay.sofa.jraft.rpc.CliRequests.ChangePeersResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class ChangePeersRequestProcessorTest extends AbstractCliRequestProcessorTest<ChangePeersRequest> {
 

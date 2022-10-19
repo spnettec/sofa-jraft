@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Node;
 import com.alipay.sofa.jraft.NodeManager;
@@ -49,7 +49,7 @@ public abstract class BaseNodeRequestProcessorTest<T extends Message> {
 
     @Before
     public void setup() {
-        Mockito.when(node.getRaftOptions()).thenReturn(new RaftOptions());
+        Mockito.lenient().when(node.getRaftOptions()).thenReturn(new RaftOptions());
     }
 
     @After
@@ -67,10 +67,10 @@ public abstract class BaseNodeRequestProcessorTest<T extends Message> {
     }
 
     protected PeerId mockNode() {
-        Mockito.when(node.getGroupId()).thenReturn(this.groupId);
+        Mockito.lenient().when(node.getGroupId()).thenReturn(this.groupId);
         final PeerId peerId = new PeerId();
         peerId.parse(this.peerIdStr);
-        Mockito.when(node.getNodeId()).thenReturn(new NodeId(groupId, peerId));
+        Mockito.lenient().when(node.getNodeId()).thenReturn(new NodeId(groupId, peerId));
         NodeManager.getInstance().addAddress(peerId.getEndpoint());
         NodeManager.getInstance().add(node);
         return peerId;

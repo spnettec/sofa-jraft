@@ -25,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Iterator;
 import com.alipay.sofa.jraft.StateMachine;
@@ -46,6 +45,7 @@ import com.alipay.sofa.jraft.storage.LogManager;
 import com.alipay.sofa.jraft.storage.snapshot.SnapshotReader;
 import com.alipay.sofa.jraft.storage.snapshot.SnapshotWriter;
 import com.alipay.sofa.jraft.test.TestUtils;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -70,8 +70,8 @@ public class FSMCallerTest {
         this.fsmCaller = new FSMCallerImpl();
         this.closureQueue = new ClosureQueueImpl(GROUP_ID);
         final FSMCallerOptions opts = new FSMCallerOptions();
-        Mockito.when(this.node.getNodeMetrics()).thenReturn(new NodeMetrics(false));
-        Mockito.when(this.node.getGroupId()).thenReturn(GROUP_ID);
+        Mockito.lenient().when(this.node.getNodeMetrics()).thenReturn(new NodeMetrics(false));
+        Mockito.lenient().when(this.node.getGroupId()).thenReturn(GROUP_ID);
         opts.setNode(this.node);
         opts.setFsm(this.fsm);
         opts.setLogManager(this.logManager);
@@ -97,8 +97,8 @@ public class FSMCallerTest {
 
     @Test
     public void testOnCommittedError() throws Exception {
-        Mockito.when(this.logManager.getTerm(10)).thenReturn(1L);
-        Mockito.when(this.logManager.getEntry(11)).thenReturn(null);
+        Mockito.lenient().when(this.logManager.getTerm(10)).thenReturn(1L);
+        Mockito.lenient().when(this.logManager.getEntry(11)).thenReturn(null);
 
         assertTrue(this.fsmCaller.onCommitted(11));
 
@@ -116,8 +116,8 @@ public class FSMCallerTest {
         final LogEntry log = new LogEntry(EntryType.ENTRY_TYPE_DATA);
         log.getId().setIndex(11);
         log.getId().setTerm(1);
-        Mockito.when(this.logManager.getTerm(11)).thenReturn(1L);
-        Mockito.when(this.logManager.getEntry(11)).thenReturn(log);
+        Mockito.lenient().when(this.logManager.getTerm(11)).thenReturn(1L);
+        Mockito.lenient().when(this.logManager.getEntry(11)).thenReturn(log);
         final ArgumentCaptor<Iterator> itArg = ArgumentCaptor.forClass(Iterator.class);
 
         assertTrue(this.fsmCaller.onCommitted(11));
@@ -138,8 +138,8 @@ public class FSMCallerTest {
         final SnapshotReader reader = Mockito.mock(SnapshotReader.class);
 
         final SnapshotMeta meta = SnapshotMeta.newBuilder().setLastIncludedIndex(12).setLastIncludedTerm(1).build();
-        Mockito.when(reader.load()).thenReturn(meta);
-        Mockito.when(this.fsm.onSnapshotLoad(reader)).thenReturn(true);
+        Mockito.lenient().when(reader.load()).thenReturn(meta);
+        Mockito.lenient().when(this.fsm.onSnapshotLoad(reader)).thenReturn(true);
         final CountDownLatch latch = new CountDownLatch(1);
         this.fsmCaller.onSnapshotLoad(new LoadSnapshotClosure() {
 
@@ -165,8 +165,8 @@ public class FSMCallerTest {
         final SnapshotReader reader = Mockito.mock(SnapshotReader.class);
 
         final SnapshotMeta meta = SnapshotMeta.newBuilder().setLastIncludedIndex(12).setLastIncludedTerm(1).build();
-        Mockito.when(reader.load()).thenReturn(meta);
-        Mockito.when(this.fsm.onSnapshotLoad(reader)).thenReturn(false);
+        Mockito.lenient().when(reader.load()).thenReturn(meta);
+        Mockito.lenient().when(this.fsm.onSnapshotLoad(reader)).thenReturn(false);
         final CountDownLatch latch = new CountDownLatch(1);
         this.fsmCaller.onSnapshotLoad(new LoadSnapshotClosure() {
 
@@ -212,8 +212,8 @@ public class FSMCallerTest {
     @Test
     public void testOnSnapshotSave() throws Exception {
         final SnapshotWriter writer = Mockito.mock(SnapshotWriter.class);
-        Mockito.when(this.logManager.getConfiguration(10)).thenReturn(
-            TestUtils.getConfEntry("localhost:8081,localhost:8082,localhost:8083", "localhost:8081"));
+        Mockito.lenient().when(this.logManager.getConfiguration(10))
+            .thenReturn(TestUtils.getConfEntry("localhost:8081,localhost:8082,localhost:8083", "localhost:8081"));
         final SaveSnapshotClosure done = new SaveSnapshotClosure() {
 
             @Override
@@ -244,8 +244,8 @@ public class FSMCallerTest {
     @Test
     public void testOnSnapshotSaveSync() throws Exception {
         final SnapshotWriter writer = Mockito.mock(SnapshotWriter.class);
-        Mockito.when(this.logManager.getConfiguration(10)).thenReturn(
-            TestUtils.getConfEntry("localhost:8081,localhost:8082,localhost:8083", "localhost:8081"));
+        Mockito.lenient().when(this.logManager.getConfiguration(10))
+            .thenReturn(TestUtils.getConfEntry("localhost:8081,localhost:8082,localhost:8083", "localhost:8081"));
         final SaveSnapshotClosure done = new SaveSnapshotClosure() {
 
             @Override
@@ -302,7 +302,7 @@ public class FSMCallerTest {
         final SnapshotReader reader = Mockito.mock(SnapshotReader.class);
 
         final SnapshotMeta meta = SnapshotMeta.newBuilder().setLastIncludedIndex(5).setLastIncludedTerm(1).build();
-        Mockito.when(reader.load()).thenReturn(meta);
+        Mockito.lenient().when(reader.load()).thenReturn(meta);
 
         final CountDownLatch latch = new CountDownLatch(1);
         this.fsmCaller.onSnapshotLoad(new LoadSnapshotClosure() {

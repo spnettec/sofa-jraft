@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.core.TimerManager;
 import com.alipay.sofa.jraft.option.NodeOptions;
@@ -51,7 +51,7 @@ public class RemoteFileCopierTest {
 
     @Test
     public void testInit() {
-        Mockito.when(rpcService.connect(new Endpoint("localhost", 8081))).thenReturn(true);
+        Mockito.lenient().when(rpcService.connect(new Endpoint("localhost", 8081))).thenReturn(true);
         assertTrue(copier.init("remote://localhost:8081/999", null, new SnapshotCopierOptions(GROUP_ID, rpcService,
             timerManager, new RaftOptions(), new NodeOptions())));
         assertEquals(999, copier.getReaderId());
@@ -61,7 +61,7 @@ public class RemoteFileCopierTest {
 
     @Test
     public void testInitFail() {
-        Mockito.when(rpcService.connect(new Endpoint("localhost", 8081))).thenReturn(false);
+        Mockito.lenient().when(rpcService.connect(new Endpoint("localhost", 8081))).thenReturn(false);
         assertFalse(copier.init("remote://localhost:8081/999", null, new SnapshotCopierOptions(GROUP_ID, rpcService,
             timerManager, new RaftOptions(), new NodeOptions())));
     }

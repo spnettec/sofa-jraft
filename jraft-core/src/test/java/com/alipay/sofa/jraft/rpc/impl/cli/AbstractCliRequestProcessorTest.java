@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Closure;
 import com.alipay.sofa.jraft.JRaftUtils;
@@ -61,8 +61,8 @@ public abstract class AbstractCliRequestProcessorTest<T extends Message> {
         for (int i = 0; i < n; i++) {
             learners.add(JRaftUtils.getPeerId("learner:" + (8081 + i)));
         }
-        Mockito.when(this.node.listPeers()).thenReturn(peers);
-        Mockito.when(this.node.listLearners()).thenReturn(learners);
+        Mockito.lenient().when(this.node.listPeers()).thenReturn(peers);
+        Mockito.lenient().when(this.node.listLearners()).thenReturn(learners);
     }
 
     @Before
@@ -78,11 +78,11 @@ public abstract class AbstractCliRequestProcessorTest<T extends Message> {
     @Test
     public void testHandleRequest() {
         this.mockNodes(3);
-        Mockito.when(this.node.getGroupId()).thenReturn(this.groupId);
+        Mockito.lenient().when(this.node.getGroupId()).thenReturn(this.groupId);
         PeerId peerId = new PeerId();
         peerId.parse(this.peerIdStr);
-        Mockito.when(this.node.getOptions()).thenReturn(new NodeOptions());
-        Mockito.when(this.node.getNodeId()).thenReturn(new NodeId("test", peerId));
+        Mockito.lenient().when(this.node.getOptions()).thenReturn(new NodeOptions());
+        Mockito.lenient().when(this.node.getNodeId()).thenReturn(new NodeId("test", peerId));
         NodeManager.getInstance().addAddress(peerId.getEndpoint());
         NodeManager.getInstance().add(this.node);
 

@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Status;
 import com.alipay.sofa.jraft.core.Scheduler;
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(value = MockitoJUnitRunner.class)
 public class LocalSnapshotCopierTest extends BaseStorageTest {
@@ -84,8 +84,8 @@ public class LocalSnapshotCopierTest extends BaseStorageTest {
         this.reader = new LocalSnapshotReader(this.snapshotStorage, null, new Endpoint("localhost", 8081),
             this.raftOptions, this.path);
 
-        Mockito.when(this.snapshotStorage.open()).thenReturn(this.reader);
-        Mockito.when(this.snapshotStorage.create(true)).thenReturn(this.writer);
+        Mockito.lenient().when(this.snapshotStorage.open()).thenReturn(this.reader);
+        Mockito.lenient().when(this.snapshotStorage.create(true)).thenReturn(this.writer);
 
         this.table = new LocalSnapshotMetaTable(this.raftOptions);
         this.table.addFile("testFile", LocalFileMetaOutter.LocalFileMeta.newBuilder().setChecksum("test").build());
@@ -93,7 +93,7 @@ public class LocalSnapshotCopierTest extends BaseStorageTest {
         this.uri = "remote://" + this.hostPort + "/" + this.readerId;
         this.copier = new LocalSnapshotCopier();
         this.copyOpts = new CopyOptions();
-        Mockito.when(this.raftClientService.connect(new Endpoint("localhost", 8081))).thenReturn(true);
+        Mockito.lenient().when(this.raftClientService.connect(new Endpoint("localhost", 8081))).thenReturn(true);
         assertTrue(this.copier.init(this.uri, new SnapshotCopierOptions(GROUP_ID, this.raftClientService,
             this.timerManager, this.raftOptions, new NodeOptions())));
         this.copier.setStorage(this.snapshotStorage);
@@ -117,9 +117,11 @@ public class LocalSnapshotCopierTest extends BaseStorageTest {
 
         //mock get metadata
         final ArgumentCaptor<RpcResponseClosure> argument = ArgumentCaptor.forClass(RpcResponseClosure.class);
-        Mockito.when(
-            this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
-                eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
+        Mockito
+            .lenient()
+            .when(
+                this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
+                    eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
         this.copier.start();
         Thread.sleep(500);
         final RpcResponseClosure<RpcRequests.GetFileResponse> closure = argument.getValue();
@@ -143,9 +145,11 @@ public class LocalSnapshotCopierTest extends BaseStorageTest {
 
         //mock get metadata
         final ArgumentCaptor<RpcResponseClosure> argument = ArgumentCaptor.forClass(RpcResponseClosure.class);
-        Mockito.when(
-            this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
-                eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
+        Mockito
+            .lenient()
+            .when(
+                this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
+                    eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
         this.copier.start();
         Thread.sleep(10);
 
@@ -174,9 +178,11 @@ public class LocalSnapshotCopierTest extends BaseStorageTest {
 
         //mock get metadata
         ArgumentCaptor<RpcResponseClosure> argument = ArgumentCaptor.forClass(RpcResponseClosure.class);
-        Mockito.when(
-            this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
-                eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
+        Mockito
+            .lenient()
+            .when(
+                this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
+                    eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
         this.copier.start();
         Thread.sleep(500);
         RpcResponseClosure<RpcRequests.GetFileResponse> closure = argument.getValue();
@@ -188,9 +194,11 @@ public class LocalSnapshotCopierTest extends BaseStorageTest {
         argument = ArgumentCaptor.forClass(RpcResponseClosure.class);
         rb.setFilename("testFile");
         rb.setCount(this.raftOptions.getMaxByteCountPerRpc());
-        Mockito.when(
-            this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
-                eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
+        Mockito
+            .lenient()
+            .when(
+                this.raftClientService.getFile(eq(new Endpoint("localhost", 8081)), eq(rb.build()),
+                    eq(this.copyOpts.getTimeoutMs()), argument.capture())).thenReturn(future);
 
         closure.run(Status.OK());
 

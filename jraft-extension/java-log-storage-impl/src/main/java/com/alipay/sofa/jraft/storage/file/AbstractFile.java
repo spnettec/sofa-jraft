@@ -40,7 +40,6 @@ import com.alipay.sofa.jraft.util.concurrent.ReferenceResource;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 
-
 /**
  * File parent class that wrappers uniform functions such as mmap(), flush() etc..
  * @author hzh (642256541@qq.com)
@@ -460,12 +459,12 @@ public abstract class AbstractFile extends ReferenceResource {
                 this.fileSize, ret, Utils.monotonicMs() - beginTime);
         }
     }
-    private Long getAddress(MappedByteBuffer mappedByteBuffer)
-    {
+
+    private Long getAddress(MappedByteBuffer mappedByteBuffer) {
         try {
             Method method = mappedByteBuffer.getClass().getDeclaredMethod("address");
             method.setAccessible(true);
-            return (Long)method.invoke(mappedByteBuffer);
+            return (Long) method.invoke(mappedByteBuffer);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -2486,6 +2486,7 @@ public class NodeTest {
         running.await();
 
         assertEquals(1000, logs.size());
+        System.out.println(snapshotsExpected.size());
         assertTrue(snapshotsExpected.size() > 1);
         //The metadata should be the same.
         assertEquals(snapshotsExpected, snapshots);
