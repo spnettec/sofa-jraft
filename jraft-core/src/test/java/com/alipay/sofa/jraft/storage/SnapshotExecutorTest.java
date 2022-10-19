@@ -393,7 +393,7 @@ public class SnapshotExecutorTest extends BaseStorageTest {
         final ArgumentCaptor<SaveSnapshotClosure> saveSnapshotClosureArg = ArgumentCaptor
             .forClass(SaveSnapshotClosure.class);
         Mockito.lenient().when(fSMCaller.isRunningOnFSMThread()).thenReturn(false);
-        Mockito.doNothing().when(fSMCaller).onSnapshotSaveSync(saveSnapshotClosureArg.capture());
+        Mockito.lenient().doNothing().when(fSMCaller).onSnapshotSaveSync(saveSnapshotClosureArg.capture());
         final SynchronizedClosure done = new SynchronizedClosure();
         this.executor.doSnapshotSync(done);
     }

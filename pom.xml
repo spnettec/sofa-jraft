@@ -57,6 +57,7 @@
         <disruptor.version>3.4.4</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
+        <io.grpc.version>1.50.0</io.grpc.version>
         <jackson.databind.version>2.13.4.2</jackson.databind.version>
         <jackson.dataformat.version>2.13.4</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
@@ -77,13 +78,12 @@
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <protobuf.version>3.21.7</protobuf.version>
+        <protoc.version>3.18.0</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
         <rocksdb.version>7.6.0</rocksdb.version>
         <slf4j.version>2.0.3</slf4j.version>
-        <io.grpc.version>1.50.0</io.grpc.version>
-        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <protoc.version>3.18.0</protoc.version>
     </properties>
     <dependencyManagement>
 
