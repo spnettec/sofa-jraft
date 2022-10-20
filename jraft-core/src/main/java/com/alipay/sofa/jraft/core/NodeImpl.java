@@ -2266,9 +2266,7 @@ public class NodeImpl implements Node, RaftServerService {
         for (final PeerId peer : peers) {
             if (peer.equals(this.serverId)) {
                 alivePeers.add(peer.copy());
-                continue;
-            }
-            if (monotonicNowMs - this.replicatorGroup.getLastRpcSendTimestamp(peer) <= leaderLeaseTimeoutMs) {
+            } else if (monotonicNowMs - this.replicatorGroup.getLastRpcSendTimestamp(peer) <= leaderLeaseTimeoutMs) {
                 alivePeers.add(peer.copy());
             }
         }

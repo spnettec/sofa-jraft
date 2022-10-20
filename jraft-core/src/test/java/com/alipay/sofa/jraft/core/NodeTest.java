@@ -36,13 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.alipay.sofa.jraft.util.ThreadPoolsFactory;
 import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.rocksdb.util.SizeUnit;
 import org.slf4j.Logger;
@@ -168,6 +162,9 @@ public class NodeTest {
             }
         }
         if (NodeImpl.GLOBAL_NUM_NODES.get() > 0) {
+            for(Node node: NodeManager.getInstance().getAllNodes()){
+                node.shutdown();
+            }
             Thread.sleep(5000);
             assertEquals(0, NodeImpl.GLOBAL_NUM_NODES.get());
         }
@@ -747,7 +744,7 @@ public class NodeTest {
         cluster.waitLeader();
 
         Node leader = cluster.getLeader();
-
+        Thread.sleep(500);
         assertEquals(3, leader.listAlivePeers().size());
         assertEquals(3, leader.listAliveLearners().size());
 
@@ -1768,7 +1765,7 @@ public class NodeTest {
     }
 
     private void waitLatch(final CountDownLatch latch) throws InterruptedException {
-        assertTrue(latch.await(30, TimeUnit.SECONDS));
+        assertTrue(latch.await(60, TimeUnit.SECONDS));
     }
 
     @Test
@@ -2424,24 +2421,20 @@ public class NodeTest {
                     final LogId logId = new LogId(iter.getIndex(), iter.getTerm());
                     logs.add(logId);
                     //random snapshot
-                    if (ThreadLocalRandom.current().nextInt(10) < 5) {
+                   // if (ThreadLocalRandom.current().nextInt(10) < 5) {
                         // commit before do snapshot
                         iter.commit();
                         running.incrementAndGet();
-                        node.snapshotSync(new Closure() {
-
-                            @Override
-                            public void run(Status status) {
-                                if (status.isOk()) {
-                                    snapshotsExpected.add(logId.copy());
-                                } else {
-                                    assertEquals(status.getCode(), RaftError.EBUSY.getNumber());
-                                }
-                                running.countDown();
-
+                        node.snapshotSync(status -> {
+                            if (status.isOk()) {
+                                snapshotsExpected.add(logId.copy());
+                            } else {
+                                assertEquals(status.getCode(), RaftError.EBUSY.getNumber());
                             }
+                            running.countDown();
+
                         });
-                    }
+                    //}
                     iter.done().run(Status.OK());
                     iter.next();
                 }
@@ -2464,6 +2457,7 @@ public class NodeTest {
         nodeOptions.setInitialConf(new Configuration(Collections.singletonList(new PeerId(addr, 0))));
 
         assertTrue(node.init(nodeOptions));
+        node.join();
         // wait node elect self as leader
         Thread.sleep(2000);
 
