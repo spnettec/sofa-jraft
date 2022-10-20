@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Node;
 import com.alipay.sofa.jraft.NodeManager;
@@ -49,7 +49,7 @@ public abstract class BaseNodeRequestProcessorTest<T extends Message> {
 
     @Before
     public void setup() {
-        Mockito.when(node.getRaftOptions()).thenReturn(new RaftOptions());
+        Mockito.lenient().when(node.getRaftOptions()).thenReturn(new RaftOptions());
     }
 
     @After

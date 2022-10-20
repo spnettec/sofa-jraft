@@ -24,7 +24,7 @@ import com.alipay.sofa.jraft.rpc.RaftServerService;
 import com.alipay.sofa.jraft.rpc.RpcRequests.InstallSnapshotRequest;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class InstallSnapshotRequestProcessorTest extends BaseNodeRequestProcessorTest<InstallSnapshotRequest> {
 

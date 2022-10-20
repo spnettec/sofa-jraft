@@ -23,7 +23,7 @@ import com.alipay.sofa.jraft.rpc.RaftServerService;
 import com.alipay.sofa.jraft.rpc.RpcRequests.ReadIndexRequest;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class ReadIndexRequestProcessorTest extends BaseNodeRequestProcessorTest<ReadIndexRequest> {
     private ReadIndexRequest request;

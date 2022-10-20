@@ -42,6 +42,11 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- benchmark -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
