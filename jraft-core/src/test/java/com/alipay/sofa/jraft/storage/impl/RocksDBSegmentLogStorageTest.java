@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -52,8 +53,8 @@ public class RocksDBSegmentLogStorageTest extends BaseLogStorageTest {
             this.logStorage.init(opts);
 
             for (int j = 0; j < n; j++) {
-                this.logStorage.appendEntries(Arrays.asList(TestUtils.mockEntry(j, 1, ThreadLocalRandom.current()
-                    .nextInt(180))));
+                this.logStorage.appendEntries(List.of(TestUtils.mockEntry(j, 1, ThreadLocalRandom.current()
+                        .nextInt(180))));
             }
 
             int index = ThreadLocalRandom.current().nextInt(n);
@@ -93,13 +94,13 @@ public class RocksDBSegmentLogStorageTest extends BaseLogStorageTest {
         int term = 1;
 
         for (int i = 0; i < 10; i++) {
-            this.logStorage.appendEntries(Arrays.asList(TestUtils.mockEntry(i, term, i)));
+            this.logStorage.appendEntries(List.of(TestUtils.mockEntry(i, term, i)));
         }
 
-        this.logStorage.appendEntries(Arrays.asList(TestUtils.mockEntry(10, term, 64)));
+        this.logStorage.appendEntries(List.of(TestUtils.mockEntry(10, term, 64)));
 
         for (int i = 11; i < 20; i++) {
-            this.logStorage.appendEntries(Arrays.asList(TestUtils.mockEntry(i, term, i)));
+            this.logStorage.appendEntries(List.of(TestUtils.mockEntry(i, term, i)));
         }
 
         for (int i = 0; i < 20; i++) {
@@ -142,7 +143,7 @@ public class RocksDBSegmentLogStorageTest extends BaseLogStorageTest {
         }
 
         assertNull(((RocksDBSegmentLogStorage) this.logStorage).getLastSegmentFileForRead());
-        this.logStorage.appendEntries(Arrays.asList(TestUtils.mockEntry(20, term, 10)));
+        this.logStorage.appendEntries(List.of(TestUtils.mockEntry(20, term, 10)));
         assertNotNull(this.logStorage.getEntry(20));
     }
 
