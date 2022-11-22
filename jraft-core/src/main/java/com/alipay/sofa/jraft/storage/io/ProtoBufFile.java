@@ -20,15 +20,8 @@ import com.alipay.sofa.jraft.rpc.ProtobufMsgFactory;
 import com.alipay.sofa.jraft.util.Bits;
 import com.alipay.sofa.jraft.util.Utils;
 import com.google.protobuf.Message;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.util.EnumSet;
-
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 /**
  * A file to store protobuf message. Format:

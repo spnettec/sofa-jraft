@@ -19,7 +19,15 @@ package com.alipay.sofa.jraft.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.rocksdb.*;
+import org.rocksdb.BlockBasedTableConfig;
+import org.rocksdb.BloomFilter;
+import org.rocksdb.ColumnFamilyOptions;
+import org.rocksdb.CompactionStyle;
+import org.rocksdb.CompressionType;
+import org.rocksdb.DBOptions;
+import org.rocksdb.IndexType;
+import org.rocksdb.RocksDB;
+import org.rocksdb.RocksObject;
 import org.rocksdb.util.SizeUnit;
 
 /**
@@ -126,11 +134,11 @@ public final class StorageOptionsFactory {
         // The maximum number of concurrent background compactions. The default is 1,
         // but to fully utilize your CPU and storage you might want to increase this
         // to approximately number of cores in the system.
-        // opts.setMaxBackgroundCompactions(Math.min(Utils.cpus(), 4));
+        opts.setMaxBackgroundCompactions(Math.min(Utils.cpus(), 4));
 
         // The maximum number of concurrent flush operations. It is usually good enough
         // to set this to 1.
-        // opts.setMaxBackgroundFlushes(1);
+        opts.setMaxBackgroundFlushes(1);
 
         return opts;
     }
@@ -249,7 +257,8 @@ public final class StorageOptionsFactory {
         // Seems like the rocksDB jni for Windows doesn't come linked with any of the
         // compression type
         if (!Platform.isWindows()) {
-            opts.setCompressionType(CompressionType.LZ4_COMPRESSION).setCompactionStyle(CompactionStyle.LEVEL)
+            opts.setCompressionType(CompressionType.LZ4_COMPRESSION) //
+                .setCompactionStyle(CompactionStyle.LEVEL) //
                 .optimizeLevelStyleCompaction();
         }
 
@@ -292,19 +301,48 @@ public final class StorageOptionsFactory {
                 cfg = newCfg;
             }
         }
-        return cfg;
+        return copyTableFormatConfig(cfg);
     }
 
     public static BlockBasedTableConfig getDefaultRocksDBTableConfig() {
         // See https://github.com/sofastack/sofa-jraft/pull/156
-        return new BlockBasedTableConfig()
+        return new BlockBasedTableConfig() //
             // Begin to use partitioned index filters
             // https://github.com/facebook/rocksdb/wiki/Partitioned-Index-Filters#how-to-use-it
-            .setIndexType(IndexType.kTwoLevelIndexSearch).setFilterPolicy(new BloomFilter(16, false))
-            .setPartitionFilters(true).setMetadataBlockSize(8 * SizeUnit.KB).setCacheIndexAndFilterBlocks(false)
-            .setCacheIndexAndFilterBlocksWithHighPriority(true).setPinL0FilterAndIndexBlocksInCache(true)
+            .setIndexType(IndexType.kTwoLevelIndexSearch) //
+            .setFilterPolicy(new BloomFilter((double) 16, false)) //
+            .setPartitionFilters(true) //
+            .setMetadataBlockSize(8 * SizeUnit.KB) //
+            .setCacheIndexAndFilterBlocks(false) //
+            .setCacheIndexAndFilterBlocksWithHighPriority(true) //
+            .setPinL0FilterAndIndexBlocksInCache(true) //
             // End of partitioned index filters settings.
-            .setBlockSize(4 * SizeUnit.KB).setBlockCache(new LRUCache(512 * SizeUnit.MB, 8));
+            .setBlockSize(4 * SizeUnit.KB)//
+            .setBlockCacheSize(512 * SizeUnit.MB) //
+            .setCacheNumShardBits(8);
+    }
+
+    private static BlockBasedTableConfig copyTableFormatConfig(final BlockBasedTableConfig cfg) {
+        return new BlockBasedTableConfig() //
+            .setNoBlockCache(cfg.noBlockCache()) //
+            .setBlockCacheSize(cfg.blockCacheSize()) //
+            .setCacheNumShardBits(cfg.cacheNumShardBits()) //
+            .setBlockSize(cfg.blockSize()) //
+            .setBlockSizeDeviation(cfg.blockSizeDeviation()) //
+            .setBlockRestartInterval(cfg.blockRestartInterval()) //
+            .setWholeKeyFiltering(cfg.wholeKeyFiltering()) //
+            .setCacheIndexAndFilterBlocks(cfg.cacheIndexAndFilterBlocks()) //
+            .setCacheIndexAndFilterBlocksWithHighPriority(cfg.cacheIndexAndFilterBlocksWithHighPriority()) //
+            .setPinL0FilterAndIndexBlocksInCache(cfg.pinL0FilterAndIndexBlocksInCache()) //
+            .setPartitionFilters(cfg.partitionFilters()) //
+            .setMetadataBlockSize(cfg.metadataBlockSize()) //
+            .setPinTopLevelIndexAndFilter(cfg.pinTopLevelIndexAndFilter()) //
+            .setHashIndexAllowCollision(cfg.hashIndexAllowCollision()) //
+            .setBlockCacheCompressedSize(cfg.blockCacheCompressedSize()) //
+            .setBlockCacheCompressedNumShardBits(cfg.blockCacheCompressedNumShardBits()) //
+            .setChecksumType(cfg.checksumType()) //
+            .setIndexType(cfg.indexType()) //
+            .setFormatVersion(cfg.formatVersion());
     }
 
     private static <T extends RocksObject> T checkInvalid(final T opts) {

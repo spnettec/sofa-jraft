@@ -571,7 +571,7 @@ public class RocksRawKVStore extends BatchRawKVStore<RocksDBOptions> implements 
                         batch.put(key, op.getValue());
                     }
                     // first, get prev values
-                    final Map<byte[], byte[]> prevValMap = this.db.multiGet(keys);
+                    final Map<byte[], byte[]> prevValMap = multiGetAsMap(keys);
                     this.db.write(this.writeOptions, batch);
                     for (final KVState kvState : segment) {
                         setSuccess(kvState.getDone(), prevValMap.get(kvState.getOp().getKey()));
