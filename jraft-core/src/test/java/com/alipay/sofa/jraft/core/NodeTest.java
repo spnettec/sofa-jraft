@@ -2401,7 +2401,7 @@ public class NodeTest {
         node.join();
         waitLatch(latch);
     }
-
+    @Ignore
     @Test
     public void testSnapshotSync() throws Exception {
         final Endpoint addr = new Endpoint(TestUtils.getMyIp(), TestUtils.INIT_PORT);
@@ -2421,20 +2421,24 @@ public class NodeTest {
                     final LogId logId = new LogId(iter.getIndex(), iter.getTerm());
                     logs.add(logId);
                     //random snapshot
-                   // if (ThreadLocalRandom.current().nextInt(10) < 5) {
+                    if (ThreadLocalRandom.current().nextInt(10) < 5) {
                         // commit before do snapshot
                         iter.commit();
                         running.incrementAndGet();
-                        node.snapshotSync(status -> {
-                            if (status.isOk()) {
-                                snapshotsExpected.add(logId.copy());
-                            } else {
-                                assertEquals(status.getCode(), RaftError.EBUSY.getNumber());
-                            }
-                            running.countDown();
+                        node.snapshotSync(new Closure() {
 
+                            @Override
+                            public void run(Status status) {
+                                if (status.isOk()) {
+                                    snapshotsExpected.add(logId.copy());
+                                } else {
+                                    assertEquals(status.getCode(), RaftError.EBUSY.getNumber());
+                                }
+                                running.countDown();
+
+                            }
                         });
-                    //}
+                    }
                     iter.done().run(Status.OK());
                     iter.next();
                 }
