@@ -85,6 +85,7 @@
         <rocksdb.version>7.7.3</rocksdb.version>
         <slf4j.version>2.0.3</slf4j.version>
     </properties>
+
     <dependencyManagement>
 
         <dependencies>
@@ -191,7 +192,6 @@
                 <artifactId>log4j-jcl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
-
             <!-- disruptor -->
             <dependency>
                 <groupId>com.lmax</groupId>
