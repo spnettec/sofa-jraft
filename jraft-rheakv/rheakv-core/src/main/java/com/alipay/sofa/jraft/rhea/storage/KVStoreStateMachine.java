@@ -346,7 +346,7 @@ public class KVStoreStateMachine extends StateMachineAdapter {
     @Override
     public void onError(RaftException e) {
         super.onError(e);
-        final List<StateListener> listeners = this.storeEngine.getStateListenerContainer()
+        final List<StateListener> listeners = this.storeEngine.getStateListenerContainer() //
                 .getStateListenerGroup(getRegionId());
         if (listeners.isEmpty()) {
             return;

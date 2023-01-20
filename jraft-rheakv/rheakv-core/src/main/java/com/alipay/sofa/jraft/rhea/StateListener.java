@@ -71,6 +71,7 @@ public interface StateListener {
      * @param oldTerm     the old term
      */
     void onStopFollowing(final PeerId oldLeaderId, final long oldTerm);
+
     /**
      * Called when error happens.
      *
