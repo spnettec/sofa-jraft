@@ -48,7 +48,7 @@
     </scm>
 
     <properties>
-        <affinity.version>3.23.2</affinity.version>
+        <affinity.version>3.23.3</affinity.version>
         <asm.version>9.4</asm.version>
         <bolt.version>1.6.10.B</bolt.version>
         <commons.compress.version>1.22</commons.compress.version>
@@ -57,24 +57,24 @@
         <disruptor.version>3.4.4</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.51.1</io.grpc.version>
-        <jackson.databind.version>2.14.1</jackson.databind.version>
-        <jackson.dataformat.version>2.14.1</jackson.dataformat.version>
+        <io.grpc.version>1.52.1</io.grpc.version>
+        <jackson.databind.version>2.14.2</jackson.databind.version>
+        <jackson.dataformat.version>2.14.2</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>11</java.source.version>
         <java.target.version>11</java.target.version>
         <jctools.version>4.0.1</jctools.version>
         <jmh.version>1.36</jmh.version>
-        <jna.version>5.12.1</jna.version>
+        <jna.version>5.13.0</jna.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <junit-jupiter.version>5.9.1</junit-jupiter.version>
+        <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <log4j.version>2.19.0</log4j.version>
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <metrics.version>4.2.13</metrics.version>
-        <mockito.version>4.9.0</mockito.version>
+        <metrics.version>4.2.15</metrics.version>
+        <mockito.version>5.1.1</mockito.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
@@ -82,8 +82,8 @@
         <protobuf.version>3.21.12</protobuf.version>
         <protoc.version>3.21.12</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>7.7.3</rocksdb.version>
-        <slf4j.version>2.0.5</slf4j.version>
+        <rocksdb.version>7.9.2</rocksdb.version>
+        <slf4j.version>2.0.6</slf4j.version>
     </properties>
 
     <dependencyManagement>
