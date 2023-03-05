@@ -36,7 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.alipay.sofa.jraft.util.ThreadPoolsFactory;
 import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestName;
 import org.rocksdb.util.SizeUnit;
 import org.slf4j.Logger;
@@ -130,7 +136,8 @@ public class NodeTest {
 
     @BeforeClass
     public static void setupNodeTest() {
-        StorageOptionsFactory.getRocksDBTableFormatConfig(RocksDBLogStorage.class).setBlockCacheSize(256 * SizeUnit.MB);
+        StorageOptionsFactory.registerRocksDBTableFormatConfig(GROUP_ID, RocksDBLogStorage.class, StorageOptionsFactory
+            .getDefaultRocksDBTableConfig().setBlockCacheSize(256 * SizeUnit.MB));
         dumpThread = new DumpThread();
         dumpThread.setName("NodeTest-DumpThread");
         dumpThread.setDaemon(true);
@@ -162,9 +169,6 @@ public class NodeTest {
             }
         }
         if (NodeImpl.GLOBAL_NUM_NODES.get() > 0) {
-            for(Node node: NodeManager.getInstance().getAllNodes()){
-                node.shutdown();
-            }
             Thread.sleep(5000);
             assertEquals(0, NodeImpl.GLOBAL_NUM_NODES.get());
         }
@@ -312,38 +316,38 @@ public class NodeTest {
         }
 
         final AtomicInteger readIndexSuccesses = new AtomicInteger(0);
+        {
+            // Submit a read-index, wait for #onApply
+            readIndexLatch.await();
+            final CountDownLatch latch = new CountDownLatch(1);
+            node.readIndex(null, new ReadIndexClosure() {
 
-        // Submit a read-index, wait for #onApply
-        readIndexLatch.await();
-        final CountDownLatch latch = new CountDownLatch(1);
-        node.readIndex(null, new ReadIndexClosure() {
-
-            @Override
-            public void run(final Status status, final long index, final byte[] reqCtx) {
-                try {
-                    if (status.isOk()) {
-                        readIndexSuccesses.incrementAndGet();
-                    } else {
-                        assertTrue("Unexpected status: " + status,
-                            status.getErrorMsg().contains(errorMsg) || status.getRaftError() == RaftError.ETIMEDOUT
-                                    || status.getErrorMsg().contains("Invalid state for readIndex: STATE_ERROR"));
+                @Override
+                public void run(final Status status, final long index, final byte[] reqCtx) {
+                    try {
+                        if (status.isOk()) {
+                            readIndexSuccesses.incrementAndGet();
+                        } else {
+                            assertTrue("Unexpected status: " + status,
+                                status.getErrorMsg().contains(errorMsg) || status.getRaftError() == RaftError.ETIMEDOUT
+                                        || status.getErrorMsg().contains("Invalid state for readIndex: STATE_ERROR"));
+                        }
+                    } finally {
+                        latch.countDown();
                     }
-                } finally {
-                    latch.countDown();
                 }
+            });
+            // We have already submit a read-index request,
+            // notify #onApply can go right now
+            applyLatch.countDown();
+
+            // The state machine is in error state, the node should step down.
+            while (node.isLeader()) {
+                Thread.sleep(10);
             }
-        });
-        // We have already submit a read-index request,
-        // notify #onApply can go right now
-        applyLatch.countDown();
-
-        // The state machine is in error state, the node should step down.
-        while (node.isLeader()) {
-            Thread.sleep(10);
+            latch.await();
+            applyCompleteLatch.await();
         }
-        latch.await();
-        applyCompleteLatch.await();
-
         // No read-index request succeed.
         assertEquals(0, readIndexSuccesses.get());
         assertTrue(n - 1 >= currentValue.get());
@@ -744,7 +748,7 @@ public class NodeTest {
         cluster.waitLeader();
 
         Node leader = cluster.getLeader();
-        Thread.sleep(500);
+
         assertEquals(3, leader.listAlivePeers().size());
         assertEquals(3, leader.listAliveLearners().size());
 
@@ -1765,7 +1769,7 @@ public class NodeTest {
     }
 
     private void waitLatch(final CountDownLatch latch) throws InterruptedException {
-        assertTrue(latch.await(60, TimeUnit.SECONDS));
+        assertTrue(latch.await(30, TimeUnit.SECONDS));
     }
 
     @Test
@@ -2401,7 +2405,7 @@ public class NodeTest {
         node.join();
         waitLatch(latch);
     }
-    @Ignore
+
     @Test
     public void testSnapshotSync() throws Exception {
         final Endpoint addr = new Endpoint(TestUtils.getMyIp(), TestUtils.INIT_PORT);
@@ -2461,7 +2465,6 @@ public class NodeTest {
         nodeOptions.setInitialConf(new Configuration(Collections.singletonList(new PeerId(addr, 0))));
 
         assertTrue(node.init(nodeOptions));
-        node.join();
         // wait node elect self as leader
         Thread.sleep(2000);
 
@@ -2484,7 +2487,6 @@ public class NodeTest {
         running.await();
 
         assertEquals(1000, logs.size());
-        System.out.println(snapshotsExpected.size());
         assertTrue(snapshotsExpected.size() > 1);
         //The metadata should be the same.
         assertEquals(snapshotsExpected, snapshots);
@@ -2685,9 +2687,8 @@ public class NodeTest {
 
     /**
      * mock state machine that fails to load snapshot.
-     *
      * @author boyan (boyan@alibaba-inc.com)
-     * <p>
+     *
      * 2018-Apr-23 11:45:29 AM
      */
     static class MockFSM1 extends MockStateMachine {
@@ -3487,7 +3488,7 @@ public class NodeTest {
 
             TestUtils.runInThread(() -> {
                 try {
-                    for (int i = 0; i < 5000; ) {
+                    for (int i = 0; i < 5000;) {
                         cluster.waitLeader();
                         final Node leader = cluster.getLeader();
                         if (leader == null) {
@@ -3526,10 +3527,10 @@ public class NodeTest {
         final Node leader = cluster.getLeader();
         leader.changePeers(new Configuration(peers), done);
         try {
-            Status status = done.await();
-            assertTrue(status.getErrorMsg(), status.isOk());
-            cluster.ensureSame();
-            assertEquals(10, cluster.getFsms().size());
+        	 Status status = done.await();
+     	     assertTrue(status.getErrorMsg(), status.isOk());
+             cluster.ensureSame();
+             assertEquals(10, cluster.getFsms().size());
             for (final MockStateMachine fsm : cluster.getFsms()) {
                 final int logSize = fsm.getLogs().size();
                 assertTrue("logSize= " + logSize, logSize >= 5000 * threads);
