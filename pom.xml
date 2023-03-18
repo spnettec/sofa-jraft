@@ -83,7 +83,7 @@
         <protoc.version>3.22.2</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
         <rocksdb.version>7.10.2</rocksdb.version>
-        <slf4j.version>2.0.6</slf4j.version>
+        <slf4j.version>2.0.7</slf4j.version>
     </properties>
 
     <dependencyManagement>
