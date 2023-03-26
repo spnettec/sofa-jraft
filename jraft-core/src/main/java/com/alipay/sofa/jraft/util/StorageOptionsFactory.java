@@ -367,7 +367,7 @@ public final class StorageOptionsFactory {
             // Begin to use partitioned index filters
             // https://github.com/facebook/rocksdb/wiki/Partitioned-Index-Filters#how-to-use-it
             .setIndexType(IndexType.kTwoLevelIndexSearch) //
-            .setFilterPolicy(new BloomFilter((double) 16, false)) //
+            .setFilterPolicy(new BloomFilter(16, false)) //
             .setPartitionFilters(true) //
             .setMetadataBlockSize(8 * SizeUnit.KB) //
             .setCacheIndexAndFilterBlocks(false) //
@@ -395,8 +395,6 @@ public final class StorageOptionsFactory {
             .setMetadataBlockSize(cfg.metadataBlockSize()) //
             .setPinTopLevelIndexAndFilter(cfg.pinTopLevelIndexAndFilter()) //
             .setHashIndexAllowCollision(cfg.hashIndexAllowCollision()) //
-            .setBlockCacheCompressedSize(cfg.blockCacheCompressedSize()) //
-            .setBlockCacheCompressedNumShardBits(cfg.blockCacheCompressedNumShardBits()) //
             .setChecksumType(cfg.checksumType()) //
             .setIndexType(cfg.indexType()) //
             .setFormatVersion(cfg.formatVersion());
