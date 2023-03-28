@@ -4,7 +4,7 @@
 
     <groupId>com.github.heyoulin.sofa-jraft</groupId>
     <artifactId>jraft-parent</artifactId>
-    <version>1.3.19.B</version>
+    <version>1.3.20.B</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -50,7 +50,7 @@
     <properties>
         <affinity.version>3.23.3</affinity.version>
         <asm.version>9.4</asm.version>
-        <bolt.version>1.6.12.B</bolt.version>
+        <bolt.version>1.6.13.B</bolt.version>
         <commons.compress.version>1.22</commons.compress.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
@@ -73,7 +73,7 @@
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <metrics.version>4.2.17</metrics.version>
+        <metrics.version>4.2.18</metrics.version>
         <mockito.version>5.2.0</mockito.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -82,7 +82,7 @@
         <protobuf.version>3.22.2</protobuf.version>
         <protoc.version>3.22.2</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>7.10.2</rocksdb.version>
+        <rocksdb.version>8.0.0</rocksdb.version>
         <slf4j.version>2.0.7</slf4j.version>
     </properties>
 
@@ -400,7 +400,7 @@
                         <include>**/*Test.java</include>
                         <include>**/*TestSuite*.java</include>
                     </includes>
-                    <forkCount>pertest</forkCount>
+                    <forkCount>1</forkCount>
                 </configuration>
             </plugin>
             <plugin>
