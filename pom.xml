@@ -57,9 +57,9 @@
         <disruptor.version>3.4.4</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.54.1</io.grpc.version>
-        <jackson.databind.version>2.15.0</jackson.databind.version>
-        <jackson.dataformat.version>2.15.0</jackson.dataformat.version>
+        <io.grpc.version>1.55.1</io.grpc.version>
+        <jackson.databind.version>2.15.2</jackson.databind.version>
+        <jackson.dataformat.version>2.15.2</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>11</java.source.version>
@@ -79,10 +79,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <protobuf.version>3.22.3</protobuf.version>
-        <protoc.version>3.22.3</protoc.version>
+        <protobuf.version>3.23.2</protobuf.version>
+        <protoc.version>3.23.2</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>8.1.1</rocksdb.version>
+        <rocksdb.version>8.1.1.1</rocksdb.version>
         <slf4j.version>2.0.7</slf4j.version>
     </properties>
 
