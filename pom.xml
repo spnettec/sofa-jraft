@@ -57,7 +57,7 @@
         <disruptor.version>3.4.4</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.55.1</io.grpc.version>
+        <io.grpc.version>1.56.0</io.grpc.version>
         <jackson.databind.version>2.15.2</jackson.databind.version>
         <jackson.dataformat.version>2.15.2</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
