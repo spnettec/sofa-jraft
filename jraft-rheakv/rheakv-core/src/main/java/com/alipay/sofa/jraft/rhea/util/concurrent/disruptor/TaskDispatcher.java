@@ -120,7 +120,7 @@ public class TaskDispatcher implements Dispatcher<Runnable> {
             for (int i = 0; i < numWorkers; i++) {
                 handlers[i] = new TaskHandler();
             }
-            this.disruptor.handleEventsWithWorkerPool(handlers);
+            this.disruptor.handleEventsWith(handlers);
         }
         this.disruptor.start();
     }

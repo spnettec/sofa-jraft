@@ -20,9 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
-import com.lmax.disruptor.TimeoutHandler;
-import com.lmax.disruptor.WorkHandler;
 
 /**
  * Callback interface to be implemented for processing events
@@ -30,20 +27,13 @@ import com.lmax.disruptor.WorkHandler;
  *
  * @author jiachun.fjc
  */
-public class TaskHandler implements EventHandler<MessageEvent<Runnable>>, WorkHandler<MessageEvent<Runnable>>,
-                        TimeoutHandler, LifecycleAware {
+public class TaskHandler implements EventHandler<MessageEvent<Runnable>>{
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskHandler.class);
 
     @Override
     public void onEvent(final MessageEvent<Runnable> event, final long sequence, final boolean endOfBatch)
                                                                                                           throws Exception {
-        event.getMessage().run();
-        event.reset();
-    }
-
-    @Override
-    public void onEvent(final MessageEvent<Runnable> event) throws Exception {
         event.getMessage().run();
         event.reset();
     }
