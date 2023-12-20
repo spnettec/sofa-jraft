@@ -401,7 +401,7 @@
                         <include>**/*Test.java</include>
                         <include>**/*TestSuite*.java</include>
                     </includes>
-                    <forkMode>pertest</forkMode>
+                    <forkCount>0</forkCount>
                 </configuration>
             </plugin>
             <plugin>
