@@ -402,6 +402,7 @@
                         <include>**/*TestSuite*.java</include>
                     </includes>
                     <forkCount>0</forkCount>
+                    <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
             <plugin>
