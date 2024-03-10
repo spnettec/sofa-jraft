@@ -51,40 +51,40 @@
         <affinity.version>3.23.3</affinity.version>
         <asm.version>9.6</asm.version>
         <bolt.version>1.6.17.B</bolt.version>
-        <commons.compress.version>1.24.0</commons.compress.version>
-        <commons.io.version>2.14.0</commons.io.version>
-        <commons.lang3.version>3.13.0</commons.lang3.version>
+        <commons.compress.version>1.26.1</commons.compress.version>
+        <commons.io.version>2.15.1</commons.io.version>
+        <commons.lang3.version>3.14.0</commons.lang3.version>
         <disruptor.version>4.0.0</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.61.0</io.grpc.version>
+        <io.grpc.version>1.62.2</io.grpc.version>
         <jackson.databind.version>2.16.1</jackson.databind.version>
         <jackson.dataformat.version>2.16.1</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>11</java.source.version>
         <java.target.version>11</java.target.version>
-        <jctools.version>4.0.2</jctools.version>
+        <jctools.version>4.0.3</jctools.version>
         <jmh.version>1.37</jmh.version>
         <jna.version>5.14.0</jna.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
-        <log4j.version>2.22.0</log4j.version>
+        <log4j.version>2.23.0</log4j.version>
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <metrics.version>4.2.23</metrics.version>
         <mockito.version>5.8.0</mockito.version>
-        <netty.version>4.1.106.Final</netty.version>
+        <netty.version>4.1.107.Final</netty.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <protobuf.version>3.25.2</protobuf.version>
-        <protoc.version>3.25.2</protoc.version>
+        <protobuf.version>3.25.3</protobuf.version>
+        <protoc.version>3.25.3</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>8.10.0</rocksdb.version>
-        <slf4j.version>2.0.11</slf4j.version>
+        <rocksdb.version>8.11.3</rocksdb.version>
+        <slf4j.version>2.0.12</slf4j.version>
     </properties>
 
     <dependencyManagement>
