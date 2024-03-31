@@ -80,8 +80,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <protobuf.version>4.26.1</protobuf.version>
-        <protoc.version>4.26.1</protoc.version>
+        <protobuf.version>3.25.3</protobuf.version>
+        <protoc.version>3.25.3</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
         <rocksdb.version>9.0.0</rocksdb.version>
         <slf4j.version>2.0.12</slf4j.version>

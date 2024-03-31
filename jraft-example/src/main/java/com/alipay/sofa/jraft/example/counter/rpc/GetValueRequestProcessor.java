@@ -48,7 +48,7 @@ public class GetValueRequestProcessor implements RpcProcessor<GetValueRequest> {
             }
         };
 
-        this.counterService.get(request.getReadOnlySafe(0), closure);
+        this.counterService.get(request.getReadOnlySafe(), closure);
     }
 
     @Override
