@@ -75,7 +75,7 @@
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <metrics.version>4.2.25</metrics.version>
         <mockito.version>5.11.0</mockito.version>
-        <netty.version>4.1.108.Final</netty.version>
+        <netty.version>4.1.109.Final</netty.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
@@ -84,7 +84,7 @@
         <protoc.version>3.25.3</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
         <rocksdb.version>9.0.0</rocksdb.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
     </properties>
 
     <dependencyManagement>
@@ -401,7 +401,7 @@
                         <include>**/*Test.java</include>
                         <include>**/*TestSuite*.java</include>
                     </includes>
-                    <forkCount>1</forkCount>
+                    <forkCount>0</forkCount>
                     <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
