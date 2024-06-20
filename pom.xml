@@ -58,8 +58,8 @@
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
         <io.grpc.version>1.62.2</io.grpc.version>
-        <jackson.databind.version>2.17.0</jackson.databind.version>
-        <jackson.dataformat.version>2.17.0</jackson.dataformat.version>
+        <jackson.databind.version>2.17.1</jackson.databind.version>
+        <jackson.dataformat.version>2.17.1</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>11</java.source.version>
@@ -75,7 +75,7 @@
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <metrics.version>4.2.25</metrics.version>
         <mockito.version>5.11.0</mockito.version>
-        <netty.version>4.1.109.Final</netty.version>
+        <netty.version>4.1.111.Final</netty.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
