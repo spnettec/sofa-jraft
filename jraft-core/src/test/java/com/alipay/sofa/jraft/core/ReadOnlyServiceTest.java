@@ -159,7 +159,7 @@ public class ReadOnlyServiceTest {
             @Override
             public void run(final Status status, final long index, final byte[] reqCtx) {
                 assertFalse(status.isOk());
-                assertEquals(index, -1);
+                assertEquals(-1, index);
                 assertArrayEquals(reqCtx, requestContext);
                 latch.countDown();
             }

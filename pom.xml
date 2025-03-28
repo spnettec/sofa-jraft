@@ -49,42 +49,42 @@
 
     <properties>
         <affinity.version>3.23.3</affinity.version>
-        <asm.version>9.7</asm.version>
+        <asm.version>9.7.1</asm.version>
         <bolt.version>1.6.19.B</bolt.version>
         <commons.compress.version>1.26.2</commons.compress.version>
         <commons.io.version>2.16.1</commons.io.version>
-        <commons.lang3.version>3.15.0</commons.lang3.version>
+        <commons.lang3.version>3.17.0</commons.lang3.version>
         <disruptor.version>4.0.0</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.65.1</io.grpc.version>
-        <jackson.databind.version>2.17.2</jackson.databind.version>
-        <jackson.dataformat.version>2.17.2</jackson.dataformat.version>
+        <io.grpc.version>1.71.0</io.grpc.version>
+        <jackson.databind.version>2.18.3</jackson.databind.version>
+        <jackson.dataformat.version>2.18.3</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
-        <java.source.version>11</java.source.version>
-        <java.target.version>11</java.target.version>
-        <jctools.version>4.0.3</jctools.version>
+        <java.source.version>17</java.source.version>
+        <java.target.version>17</java.target.version>
+        <jctools.version>4.0.5</jctools.version>
         <jmh.version>1.37</jmh.version>
-        <jna.version>5.14.0</jna.version>
+        <jna.version>5.17.0</jna.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
         <main.user.dir>${user.dir}</main.user.dir>
-        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <metrics.version>4.2.25</metrics.version>
         <mockito.version>5.11.0</mockito.version>
-        <netty.version>4.1.112.Final</netty.version>
+        <netty.version>4.1.119.Final</netty.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <protobuf.version>3.25.4</protobuf.version>
-        <protoc.version>3.25.4</protoc.version>
+        <protobuf.version>4.30.2</protobuf.version>
+        <protoc.version>4.30.2</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>9.4.0</rocksdb.version>
-        <slf4j.version>2.0.13</slf4j.version>
+        <rocksdb.version>9.10.0</rocksdb.version>
+        <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
     <dependencyManagement>
@@ -394,9 +394,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
-                <inherited>true</inherited>
+                <version>3.2.5</version>
                 <configuration>
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.nio=ALL-UNNAMED
+                        --add-opens java.base/sun.nio.ch=ALL-UNNAMED</argLine>
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*TestSuite*.java</include>

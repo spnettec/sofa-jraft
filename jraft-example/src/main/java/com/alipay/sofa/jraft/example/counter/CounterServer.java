@@ -20,7 +20,7 @@ import com.alipay.sofa.jraft.Node;
 import com.alipay.sofa.jraft.RaftGroupService;
 import com.alipay.sofa.jraft.conf.Configuration;
 import com.alipay.sofa.jraft.entity.PeerId;
-import com.alipay.sofa.jraft.example.counter.rpc.CounterOutter.ValueResponse;
+import com.alipay.sofa.jraft.example.counter.rpc.CounterOutter;
 import com.alipay.sofa.jraft.example.counter.rpc.GetValueRequestProcessor;
 import com.alipay.sofa.jraft.example.counter.rpc.CounterGrpcHelper;
 import com.alipay.sofa.jraft.example.counter.rpc.IncrementAndGetRequestProcessor;
@@ -92,8 +92,8 @@ public class CounterServer {
     /**
      * Redirect request to new leader
      */
-    public ValueResponse redirect() {
-        final ValueResponse.Builder builder = ValueResponse.newBuilder().setSuccess(false);
+    public CounterOutter.ValueResponse redirect() {
+        final CounterOutter.ValueResponse.Builder builder = CounterOutter.ValueResponse.newBuilder().setSuccess(false);
         if (this.node != null) {
             final PeerId leader = this.node.getLeaderId();
             if (leader != null) {

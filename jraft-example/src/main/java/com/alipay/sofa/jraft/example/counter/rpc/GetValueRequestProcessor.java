@@ -20,7 +20,6 @@ import com.alipay.sofa.jraft.Status;
 import com.alipay.sofa.jraft.example.counter.CounterClosure;
 import com.alipay.sofa.jraft.example.counter.CounterService;
 import com.alipay.sofa.jraft.rpc.RpcContext;
-import com.alipay.sofa.jraft.example.counter.rpc.CounterOutter.GetValueRequest;
 import com.alipay.sofa.jraft.rpc.RpcProcessor;
 
 /**
@@ -30,7 +29,7 @@ import com.alipay.sofa.jraft.rpc.RpcProcessor;
  *
  * 2018-Apr-09 5:48:33 PM
  */
-public class GetValueRequestProcessor implements RpcProcessor<GetValueRequest> {
+public class GetValueRequestProcessor implements RpcProcessor<CounterOutter.GetValueRequest> {
 
     private final CounterService counterService;
 
@@ -40,7 +39,7 @@ public class GetValueRequestProcessor implements RpcProcessor<GetValueRequest> {
     }
 
     @Override
-    public void handleRequest(final RpcContext rpcCtx, final GetValueRequest request) {
+    public void handleRequest(final RpcContext rpcCtx, final CounterOutter.GetValueRequest request) {
         final CounterClosure closure = new CounterClosure() {
             @Override
             public void run(Status status) {
@@ -53,6 +52,6 @@ public class GetValueRequestProcessor implements RpcProcessor<GetValueRequest> {
 
     @Override
     public String interest() {
-        return GetValueRequest.class.getName();
+        return CounterOutter.GetValueRequest.class.getName();
     }
 }

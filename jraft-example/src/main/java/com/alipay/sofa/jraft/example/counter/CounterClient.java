@@ -20,8 +20,8 @@ import com.alipay.sofa.jraft.RouteTable;
 import com.alipay.sofa.jraft.conf.Configuration;
 import com.alipay.sofa.jraft.entity.PeerId;
 import com.alipay.sofa.jraft.error.RemotingException;
-import com.alipay.sofa.jraft.example.counter.rpc.CounterOutter.IncrementAndGetRequest;
 import com.alipay.sofa.jraft.example.counter.rpc.CounterGrpcHelper;
+import com.alipay.sofa.jraft.example.counter.rpc.CounterOutter;
 import com.alipay.sofa.jraft.option.CliOptions;
 import com.alipay.sofa.jraft.rpc.InvokeCallback;
 import com.alipay.sofa.jraft.rpc.impl.cli.CliClientServiceImpl;
@@ -72,7 +72,7 @@ public class CounterClient {
     private static void incrementAndGet(final CliClientServiceImpl cliClientService, final PeerId leader,
                                         final long delta, CountDownLatch latch) throws RemotingException,
                                                                                InterruptedException {
-        IncrementAndGetRequest request = IncrementAndGetRequest.newBuilder().setDelta(delta).build();
+        CounterOutter.IncrementAndGetRequest request = CounterOutter.IncrementAndGetRequest.newBuilder().setDelta(delta).build();
         cliClientService.getRpcClient().invokeAsync(leader.getEndpoint(), request, new InvokeCallback() {
 
             @Override
