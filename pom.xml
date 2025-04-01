@@ -62,8 +62,8 @@
         <jackson.dataformat.version>2.18.3</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
-        <java.source.version>17</java.source.version>
-        <java.target.version>17</java.target.version>
+        <java.source.version>11</java.source.version>
+        <java.target.version>11</java.target.version>
         <jctools.version>4.0.5</jctools.version>
         <jmh.version>1.37</jmh.version>
         <jna.version>5.17.0</jna.version>
@@ -71,7 +71,7 @@
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <log4j.version>2.24.3</log4j.version>
         <main.user.dir>${user.dir}</main.user.dir>
-        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <metrics.version>4.2.25</metrics.version>
         <mockito.version>5.11.0</mockito.version>
