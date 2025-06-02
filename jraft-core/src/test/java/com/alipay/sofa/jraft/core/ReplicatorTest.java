@@ -28,10 +28,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.alipay.sofa.jraft.Status;
 import com.alipay.sofa.jraft.closure.CatchUpClosure;
@@ -56,6 +54,7 @@ import com.alipay.sofa.jraft.util.ThreadId;
 import com.alipay.sofa.jraft.util.Utils;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,8 +62,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 
 @RunWith(value = MockitoJUnitRunner.class)
 public class ReplicatorTest {
@@ -541,7 +540,7 @@ public class ReplicatorTest {
 
         final RpcRequests.TimeoutNowRequest request = createTimeoutnowRequest();
         Mockito.when(
-            this.rpcService.timeoutNow(Matchers.eq(this.opts.getPeerId().getEndpoint()), eq(request), eq(-1),
+            this.rpcService.timeoutNow(eq(this.opts.getPeerId().getEndpoint()), eq(request), eq(-1),
                 Mockito.any())).thenReturn(new FutureImpl<>());
 
         assertTrue(Replicator.transferLeadership(this.id, 10));
@@ -585,7 +584,7 @@ public class ReplicatorTest {
         assertEquals(0, r.getTimeoutNowIndex());
         assertNull(r.getTimeoutNowInFly());
         final RpcRequests.TimeoutNowRequest request = createTimeoutnowRequest();
-        Mockito.verify(this.rpcService).timeoutNow(Matchers.eq(this.opts.getPeerId().getEndpoint()), eq(request),
+        Mockito.verify(this.rpcService).timeoutNow(eq(this.opts.getPeerId().getEndpoint()), eq(request),
             eq(10), Mockito.any());
     }
 
@@ -651,7 +650,7 @@ public class ReplicatorTest {
         rb.setUri(uri);
 
         Mockito.when(
-            this.rpcService.installSnapshot(Matchers.eq(this.opts.getPeerId().getEndpoint()), eq(rb.build()),
+            this.rpcService.installSnapshot(eq(this.opts.getPeerId().getEndpoint()), eq(rb.build()),
                 Mockito.any())).thenReturn(new FutureImpl<>());
 
         r.installSnapshot();
