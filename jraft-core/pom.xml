@@ -92,7 +92,6 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>

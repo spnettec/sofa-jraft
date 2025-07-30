@@ -48,18 +48,18 @@
     </scm>
 
     <properties>
-        <affinity.version>3.23.3</affinity.version>
-        <asm.version>9.7.1</asm.version>
+        <affinity.version>3.27ea1</affinity.version>
+        <asm.version>9.8</asm.version>
         <bolt.version>1.6.20.B</bolt.version>
-        <commons.compress.version>1.26.2</commons.compress.version>
-        <commons.io.version>2.16.1</commons.io.version>
-        <commons.lang3.version>3.17.0</commons.lang3.version>
+        <commons.compress.version>1.27.1</commons.compress.version>
+        <commons.io.version>2.20.0</commons.io.version>
+        <commons.lang3.version>3.18.0</commons.lang3.version>
         <disruptor.version>4.0.0</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.72.0</io.grpc.version>
-        <jackson.databind.version>2.18.3</jackson.databind.version>
-        <jackson.dataformat.version>2.18.3</jackson.dataformat.version>
+        <io.grpc.version>1.74.0</io.grpc.version>
+        <jackson.databind.version>2.19.2</jackson.databind.version>
+        <jackson.dataformat.version>2.19.2</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>11</java.source.version>
@@ -69,21 +69,21 @@
         <jna.version>5.17.0</jna.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <log4j.version>2.24.3</log4j.version>
+        <log4j.version>2.25.1</log4j.version>
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <metrics.version>4.2.25</metrics.version>
+        <metrics.version>4.2.33</metrics.version>
         <mockito.version>5.11.0</mockito.version>
-        <netty.version>4.1.119.Final</netty.version>
+        <netty.version>4.1.123.Final</netty.version>
         <powermock.version>2.0.9</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.encoding>UTF-8</project.encoding>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <protobuf.version>4.30.2</protobuf.version>
-        <protoc.version>4.30.2</protoc.version>
+        <protobuf.version>4.31.1</protobuf.version>
+        <protoc.version>4.31.1</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>9.10.0</rocksdb.version>
+        <rocksdb.version>10.2.1</rocksdb.version>
         <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
@@ -514,6 +514,24 @@
     <!-- profile definitions -->
     <profiles>
         <profile>
+            <id>java9-plus</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- Java 9+ compatibility, reflective access -->
+                            <argLine>-Xmx2048m ${coverageAgent} --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>deploy</id>
             <build>
                 <plugins>
@@ -542,7 +560,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <nexusUrl>https://ossrh-staging-api.central.sonatype.com/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
@@ -573,11 +591,11 @@
             <distributionManagement>
                 <repository>
                     <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                    <url>https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/</url>
                 </repository>
                 <snapshotRepository>
                     <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </snapshotRepository>
             </distributionManagement>
         </profile>
