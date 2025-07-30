@@ -426,14 +426,9 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         }
     }
 
-    private static final ReferenceFieldUpdater<ArrayList<?>, Object[]> LIST_ARRAY_GETTER = Updaters
-                                                                                             .newReferenceFieldUpdater(
-                                                                                                 ArrayList.class,
-                                                                                                 "elementData");
-
     @SuppressWarnings("unchecked")
     public void addAll(final Collection<T> coll) {
-        Object[] src = coll2Array(coll);
+        Object[] src = coll.toArray();
 
         int srcPos = 0;
         int srcSize = coll.size();
@@ -452,16 +447,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
             this.estimatedBytes += bytes;
         }
 
-    }
-
-    private Object[] coll2Array(final Collection<T> coll) {
-        Object[] src;
-        if (coll instanceof ArrayList) {
-            src = LIST_ARRAY_GETTER.get((ArrayList<T>) coll);
-        } else {
-            src = coll.toArray();
-        }
-        return src;
     }
 
     @Override
