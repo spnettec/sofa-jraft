@@ -21,9 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import com.alipay.sofa.jraft.util.internal.ReferenceFieldUpdater;
-import com.alipay.sofa.jraft.util.internal.Updaters;
-
 /**
  * A list implementation based on segments. Only supports removing elements from start or end.
  * The list keep the elements in a segment list, every segment contains at most 128 elements.
@@ -428,7 +425,7 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
 
     @SuppressWarnings("unchecked")
     public void addAll(final Collection<T> coll) {
-        Object[] src = coll.toArray();
+        Object[] src = coll2Array(coll);
 
         int srcPos = 0;
         int srcSize = coll.size();
@@ -447,6 +444,10 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
             this.estimatedBytes += bytes;
         }
 
+    }
+
+    private Object[] coll2Array(final Collection<T> coll) {
+        return coll.toArray();
     }
 
     @Override
