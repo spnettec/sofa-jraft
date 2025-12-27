@@ -83,7 +83,7 @@
         <protobuf.version>4.33.2</protobuf.version>
         <protoc.version>4.33.2</protoc.version>
         <protostuff.version>1.8.0</protostuff.version>
-        <rocksdb.version>10.4.2</rocksdb.version>
+        <rocksdb.version>10.2.1</rocksdb.version>
         <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
