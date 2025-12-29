@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.alipay.sofa.jraft.rhea.errors.PlacementDriverServerStartupException;
 import com.alipay.sofa.jraft.rhea.options.PlacementDriverServerOptions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * @author jiachun.fjc
@@ -39,7 +39,7 @@ public class PlacementDriverStartup {
             System.exit(1);
         }
         final String configPath = args[0];
-        final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        final ObjectMapper mapper = YAMLMapper.builder().build();
         final PlacementDriverServerOptions opts = mapper.readValue(new File(configPath),
             PlacementDriverServerOptions.class);
         final PlacementDriverServer pdServer = new PlacementDriverServer();

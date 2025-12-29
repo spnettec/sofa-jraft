@@ -21,8 +21,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import com.alipay.sofa.jraft.rhea.options.RheaKVStoreOptions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * @author jiachun.fjc
@@ -40,7 +41,7 @@ public class Yaml {
         try {
             opts = mapper.readValue(new File(name), RheaKVStoreOptions.class);
             System.out.println(opts);
-        } catch (IOException e) {
+        } catch (JacksonIOException e) {
             throw new RuntimeException(e);
         }
         return opts;

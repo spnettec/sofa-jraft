@@ -25,8 +25,8 @@ import org.apache.commons.io.FileUtils;
 
 import com.alipay.sofa.jraft.rhea.errors.NotLeaderException;
 import com.alipay.sofa.jraft.rhea.options.PlacementDriverServerOptions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * @author jiachun.fjc
@@ -61,7 +61,7 @@ public class BasePdServer {
             System.out.println("make dir: " + this.tempRaftPath);
         }
         for (final String c : CONF) {
-            final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            final ObjectMapper mapper = YAMLMapper.builder().build();
             final InputStream in = BasePdServer.class.getResourceAsStream(c);
             final PlacementDriverServerOptions opts = mapper.readValue(in, PlacementDriverServerOptions.class);
             final PlacementDriverServer pdServer = new PlacementDriverServer();
