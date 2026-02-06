@@ -49,24 +49,24 @@
 
     <properties>
         <affinity.version>3.27ea1</affinity.version>
-        <asm.version>9.8</asm.version>
+        <asm.version>9.9.1</asm.version>
         <bolt.version>1.6.20.B</bolt.version>
-        <commons.compress.version>1.27.1</commons.compress.version>
-        <commons.io.version>2.20.0</commons.io.version>
-        <commons.lang3.version>3.18.0</commons.lang3.version>
+        <commons.compress.version>1.28.0</commons.compress.version>
+        <commons.io.version>2.21.0</commons.io.version>
+        <commons.lang3.version>3.20.0</commons.lang3.version>
         <disruptor.version>4.0.0</disruptor.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hessian.version>4.0.66</hessian.version>
-        <io.grpc.version>1.74.0</io.grpc.version>
-        <jackson.databind.version>3.0.3</jackson.databind.version>
-        <jackson.dataformat.version>3.0.3</jackson.dataformat.version>
+        <io.grpc.version>1.79.0</io.grpc.version>
+        <jackson.databind.version>3.0.4</jackson.databind.version>
+        <jackson.dataformat.version>3.0.4</jackson.dataformat.version>
         <jacoco.path>${project.build.directory}/jacoco.exec</jacoco.path>
         <jacoco.skip>true</jacoco.skip>
         <java.source.version>17</java.source.version>
         <java.target.version>17</java.target.version>
         <jctools.version>4.0.5</jctools.version>
         <jmh.version>1.37</jmh.version>
-        <jna.version>5.17.0</jna.version>
+        <jna.version>5.18.1</jna.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <log4j.version>2.25.3</log4j.version>
