@@ -18,6 +18,7 @@ package com.alipay.sofa.jraft.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -87,11 +88,10 @@ public class FileServiceTest {
         assertEquals(String.format("Fail to read from path=%s filename=data", this.path), response.getErrorMsg());
     }
 
-    private String writeData() throws IOException {
+    private void writeData() throws IOException {
         File file = new File(this.path + File.separator + "data");
         String data = "jraft is great!";
-        FileUtils.writeStringToFile(file, data);
-        return data;
+        FileUtils.writeStringToFile(file, data, Charset.defaultCharset());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class FileServiceTest {
         File file = new File(this.path + File.separator + "data");
         String data = "jraft is great!";
         for (int i = 0; i < 1000; i++) {
-            FileUtils.writeStringToFile(file, data, true);
+            FileUtils.writeStringToFile(file, data, Charset.defaultCharset(),true);
         }
         return data;
     }
