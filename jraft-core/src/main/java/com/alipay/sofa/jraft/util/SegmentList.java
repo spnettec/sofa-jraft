@@ -21,6 +21,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
 
+import com.alipay.sofa.jraft.util.internal.ReferenceFieldUpdater;
+import com.alipay.sofa.jraft.util.internal.Updaters;
+
 /**
  * A list implementation based on segments. Only supports removing elements from start or end.
  * The list keep the elements in a segment list, every segment contains at most 128 elements.
@@ -34,20 +37,7 @@ import java.util.function.Predicate;
  * @since 1.3.1
  *
  */
-public class SegmentList<T extends SegmentList.EstimatedSize> {
-
-    /**
-     * An interface used to estimate the approximate memory footprint of an object in bytes.
-     */
-    public static interface EstimatedSize {
-        /**
-         * Returns the estimated memory size of this object, in bytes.
-         *
-         * @return the estimated memory size in bytes
-         */
-        long estimatedSize();
-    }
-
+public class SegmentList<T> {
     private static final int             SEGMENT_SHIFT = 7;
     public static final int              SEGMENT_SIZE  = 2 << (SEGMENT_SHIFT - 1);
 
@@ -60,9 +50,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
 
     private final boolean                recycleSegment;
 
-    // Estimated memory size of list
-    private long                         estimatedBytes;
-
     /**
      * Create a new SegmentList
      * @param recycleSegment true to enable recycling segment, only effective in same thread.
@@ -71,7 +58,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         this.segments = new ArrayDeque<>();
         this.size = 0;
         this.firstOffset = 0;
-        this.estimatedBytes = 0;
         this.recycleSegment = recycleSegment;
     }
 
@@ -81,7 +67,7 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
      *
      * @param <T>
      */
-    private final static class Segment<T extends EstimatedSize> implements Recyclable {
+    private final static class Segment<T> implements Recyclable {
         private static final Recyclers<Segment<?>> recyclers = new Recyclers<Segment<?>>(16_382 / SEGMENT_SIZE) {
 
                                                                  @Override
@@ -100,24 +86,22 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
 
         private transient Recyclers.Handle handle;
 
-        final Object[]                     elements;
+        final T[]                          elements;
         int                                pos;     // end offset(exclusive)
         int                                offset;  // start offset(inclusive)
-        long                               bytes;   // estimated memory size of valid elements
 
         Segment() {
             this(Recyclers.NOOP_HANDLE);
         }
 
+        @SuppressWarnings("unchecked")
         Segment(final Recyclers.Handle handle) {
-            this.elements = new Object[SEGMENT_SIZE];
-            this.bytes = 0;
+            this.elements = (T[]) new Object[SEGMENT_SIZE];
             this.pos = this.offset = 0;
             this.handle = handle;
         }
 
         void clear() {
-            this.bytes = 0;
             this.pos = this.offset = 0;
             Arrays.fill(this.elements, null);
         }
@@ -132,20 +116,10 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
             return SEGMENT_SIZE - this.pos;
         }
 
-        long bytes() {
-            return this.bytes;
-        }
-
-        @SuppressWarnings({ "SuspiciousSystemArraycopy", "unchecked" })
-        private long addAll(final Object[] src, final int srcPos, final int len) {
-            long addBytes = 0;
+        @SuppressWarnings("SuspiciousSystemArraycopy")
+        private void addAll(final Object[] src, final int srcPos, final int len) {
             System.arraycopy(src, srcPos, this.elements, this.pos, len);
-            for (int i = srcPos; i < srcPos + len; i++) {
-                addBytes += ((T) src[i]).estimatedSize();
-            }
             this.pos += len;
-            this.bytes += addBytes;
-            return addBytes;
         }
 
         boolean isReachEnd() {
@@ -157,59 +131,48 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         }
 
         void add(final T e) {
-            this.bytes += e.estimatedSize();
             this.elements[this.pos++] = e;
         }
 
-        @SuppressWarnings("unchecked")
         T get(final int index) {
             if (index >= this.pos || index < this.offset) {
                 throw new IndexOutOfBoundsException("Index=" + index + ", Offset=" + this.offset + ", Pos=" + this.pos);
             }
-            return (T) this.elements[index];
+            return this.elements[index];
         }
 
-        @SuppressWarnings("unchecked")
         T peekLast() {
-            return (T) this.elements[this.pos - 1];
+            return this.elements[this.pos - 1];
         }
 
         int size() {
             return this.pos - this.offset;
         }
 
-        @SuppressWarnings("unchecked")
         T peekFirst() {
-            return (T) this.elements[this.offset];
+            return this.elements[this.offset];
         }
 
-        @SuppressWarnings("unchecked")
-        long[] removeFromLastWhen(final Predicate<T> predicate) {
+        int removeFromLastWhen(final Predicate<T> predicate) {
             int removed = 0;
-            long removedBytes = 0;
             for (int i = this.pos - 1; i >= this.offset; i--) {
-                T e = (T) this.elements[i];
+                T e = this.elements[i];
                 if (predicate.test(e)) {
-                    removedBytes += e.estimatedSize();
                     this.elements[i] = null;
                     removed++;
                 } else {
                     break;
                 }
             }
-            this.bytes -= removedBytes;
             this.pos -= removed;
-            return new long[] { removed, removedBytes };
+            return removed;
         }
 
-        long[] removeFromFirstWhen(final Predicate<T> predicate) {
+        int removeFromFirstWhen(final Predicate<T> predicate) {
             int removed = 0;
-            long removedBytes = 0;
             for (int i = this.offset; i < this.pos; i++) {
-                @SuppressWarnings("unchecked")
-                T e = (T) this.elements[i];
+                T e = this.elements[i];
                 if (predicate.test(e)) {
-                    removedBytes += e.estimatedSize();
                     this.elements[i] = null;
                     removed++;
                 } else {
@@ -217,22 +180,17 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
                 }
             }
             this.offset += removed;
-            this.bytes -= removedBytes;
-            return new long[] { removed, removedBytes };
+            return removed;
         }
 
-        @SuppressWarnings("unchecked")
-        long[] removeFromFirst(final int toIndex) {
+        int removeFromFirst(final int toIndex) {
             int removed = 0;
-            long removeBytes = 0;
             for (int i = this.offset; i < Math.min(toIndex, this.pos); i++) {
-                removeBytes += ((T) this.elements[i]).estimatedSize();
                 this.elements[i] = null;
                 removed++;
             }
             this.offset += removed;
-            this.bytes -= removeBytes;
-            return new long[] { removed, removeBytes };
+            return removed;
         }
 
         @Override
@@ -244,11 +202,7 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
                     b.append(", ");
                 }
             }
-            return "Segment [elements=" + b.toString() + //
-                   ", offset=" + this.offset + //
-                   ", pos=" + this.pos + //
-                   ", bytes=" + this.bytes + //
-                   "]";
+            return "Segment [elements=" + b.toString() + ", offset=" + this.offset + ", pos=" + this.pos + "]";
         }
 
     }
@@ -284,7 +238,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         }
         lastSeg.add(e);
         this.size++;
-        this.estimatedBytes += e.estimatedSize();
     }
 
     private Segment<T> getLast() {
@@ -294,18 +247,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         return null;
     }
 
-    /**
-     * Returns the estimated memory size of list.
-     * @return the estimated memory size
-     */
-    public long estimatedBytes() {
-        return this.estimatedBytes;
-    }
-
-    /**
-     * Returns the size of list.
-     * @return the size
-     */
     public int size() {
         return this.size;
     }
@@ -314,10 +255,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         return this.segments.size();
     }
 
-    /**
-     * Return true when list is empty.
-     * @return
-     */
     public boolean isEmpty() {
         return this.size == 0;
     }
@@ -332,17 +269,13 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         while (true) {
             if (firstSeg == null) {
                 this.firstOffset = this.size = 0;
-                this.estimatedBytes = 0;
                 return;
             }
-            long[] results = firstSeg.removeFromFirstWhen(predicate);
-            int removed = (int) results[0];
-            long removedBytes = results[1];
+            int removed = firstSeg.removeFromFirstWhen(predicate);
             if (removed == 0) {
                 break;
             }
             this.size -= removed;
-            this.estimatedBytes -= removedBytes;
             this.firstOffset = firstSeg.offset;
             if (firstSeg.isEmpty()) {
                 RecycleUtil.recycle(this.segments.pollFirst());
@@ -356,7 +289,6 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         while (!this.segments.isEmpty()) {
             RecycleUtil.recycle(this.segments.pollLast());
         }
-        this.estimatedBytes = 0;
         this.size = this.firstOffset = 0;
     }
 
@@ -370,17 +302,13 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         while (true) {
             if (lastSeg == null) {
                 this.firstOffset = this.size = 0;
-                this.estimatedBytes = 0;
                 return;
             }
-            long[] results = lastSeg.removeFromLastWhen(predicate);
-            int removed = (int) results[0];
-            long removedBytes = results[1];
+            int removed = lastSeg.removeFromLastWhen(predicate);
             if (removed == 0) {
                 break;
             }
             this.size -= removed;
-            this.estimatedBytes -= removedBytes;
             if (lastSeg.isEmpty()) {
                 RecycleUtil.recycle(this.segments.pollLast());
                 lastSeg = getLast();
@@ -401,31 +329,31 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
         int toIndexInSeg = alignedIndex & (SEGMENT_SIZE - 1);
 
         if (toSegmentIndex > 0) {
-            for (int i = 0; i < toSegmentIndex; i++) {
-                this.estimatedBytes -= this.segments.get(i).bytes();
-            }
             this.segments.removeRange(0, toSegmentIndex);
             this.size -= ((toSegmentIndex << SEGMENT_SHIFT) - this.firstOffset);
         }
 
         Segment<T> firstSeg = this.getFirst();
         if (firstSeg != null) {
-            long[] results = firstSeg.removeFromFirst(toIndexInSeg);
-            this.size -= (int) results[0];
-            this.estimatedBytes -= results[1];
+            this.size -= firstSeg.removeFromFirst(toIndexInSeg);
             this.firstOffset = firstSeg.offset;
             if (firstSeg.isEmpty()) {
                 RecycleUtil.recycle(this.segments.pollFirst());
                 this.firstOffset = 0;
             }
         } else {
-            this.estimatedBytes = this.firstOffset = this.size = 0;
+            this.firstOffset = this.size = 0;
         }
     }
 
+    private static final ReferenceFieldUpdater<ArrayList<?>, Object[]> LIST_ARRAY_GETTER = Updaters
+                                                                                             .newReferenceFieldUpdater(
+                                                                                                 ArrayList.class,
+                                                                                                 "elementData");
+
     @SuppressWarnings("unchecked")
     public void addAll(final Collection<T> coll) {
-        Object[] src = coll2Array(coll);
+        Object[] src = coll.toArray();
 
         int srcPos = 0;
         int srcSize = coll.size();
@@ -438,16 +366,11 @@ public class SegmentList<T extends SegmentList.EstimatedSize> {
             }
 
             int len = Math.min(lastSeg.cap(), srcSize - srcPos);
-            long bytes = lastSeg.addAll(src, srcPos, len);
+            lastSeg.addAll(src, srcPos, len);
             srcPos += len;
             this.size += len;
-            this.estimatedBytes += bytes;
         }
 
-    }
-
-    private Object[] coll2Array(final Collection<T> coll) {
-        return coll.toArray();
     }
 
     @Override

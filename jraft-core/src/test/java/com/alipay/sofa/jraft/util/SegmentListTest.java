@@ -32,26 +32,11 @@ import io.netty.util.internal.ThreadLocalRandom;
 
 public class SegmentListTest {
 
-    static class WrapperInteger implements SegmentList.EstimatedSize {
-        int val;
-
-        public WrapperInteger(int val) {
-            super();
-            this.val = val;
-        }
-
-        @Override
-        public long estimatedSize() {
-            return 4;
-        }
-
-    }
-
-    private SegmentList<WrapperInteger> list;
+    private SegmentList<Integer> list;
 
     @Before
     public void setup() {
-        this.list = new SegmentList<WrapperInteger>(true);
+        this.list = new SegmentList<>(true);
     }
 
     @Test
@@ -64,10 +49,9 @@ public class SegmentListTest {
 
     private void assertFilledList() {
         for (int i = 0; i < 1000; i++) {
-            assertEquals(i, this.list.get(i).val);
+            assertEquals(i, (int) this.list.get(i));
         }
         assertEquals(1000, this.list.size());
-        assertEquals(4000, this.list.estimatedBytes());
         assertFalse(this.list.isEmpty());
         assertEquals(1000 / SegmentList.SEGMENT_SIZE + 1, this.list.segmentSize());
     }
@@ -75,35 +59,32 @@ public class SegmentListTest {
     private void fillList() {
         int originSize = this.list.size();
         for (int i = 0; i < 1000; i++) {
-            this.list.add(new WrapperInteger(i));
+            this.list.add(i);
             assertEquals(originSize + i + 1, this.list.size());
-            assertEquals((originSize + i + 1) * 4, this.list.estimatedBytes());
         }
     }
 
     @Test
     public void testAddAllGet() {
-        List<WrapperInteger> tmpList = new ArrayList<WrapperInteger>();
+        List<Integer> tmpList = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            tmpList.add(new WrapperInteger(i));
+            tmpList.add(i);
         }
 
         this.list.addAll(tmpList);
         assertFilledList();
 
-        this.list.removeFromFirstWhen(x -> x.val < 100);
+        this.list.removeFromFirstWhen(x -> x < 100);
         assertEquals(900, this.list.size());
-        assertEquals(3600, this.list.estimatedBytes());
 
         this.list.addAll(tmpList);
         assertEquals(1900, this.list.size());
-        assertEquals(1900*4, this.list.estimatedBytes());
 
         for (int i = 0; i < 1900; i++) {
             if (i < 900) {
-                assertEquals(i + 100,  this.list.get(i).val);
+                assertEquals(i + 100, (int) this.list.get(i));
             } else {
-                assertEquals(i - 900,  this.list.get(i).val);
+                assertEquals(i - 900, (int) this.list.get(i));
             }
         }
 
@@ -117,22 +98,20 @@ public class SegmentListTest {
         this.list.removeFromFirst(len);
 
         assertEquals(1000 - len, this.list.size());
-        assertEquals((1000 - len) * 4, this.list.estimatedBytes());
 
         for (int i = 0; i < 1000 - len; i++) {
-            assertEquals(i + len, this.list.get(i).val);
+            assertEquals(i + len, (int) this.list.get(i));
         }
 
         this.list.removeFromFirst(100);
         assertEquals(1000 - len - 100, this.list.size());
 
         for (int i = 0; i < 1000 - len - 100; i++) {
-            assertEquals(i + len + 100, this.list.get(i).val);
+            assertEquals(i + len + 100, (int) this.list.get(i));
         }
 
         this.list.removeFromFirst(1000 - len - 100);
         assertTrue(this.list.isEmpty());
-        assertEquals(0, this.list.estimatedBytes());
         assertEquals(0, this.list.segmentSize());
         assertNull(this.list.peekFirst());
         assertNull(this.list.peekLast());
@@ -141,25 +120,22 @@ public class SegmentListTest {
     @Test
     public void testRemoveFromFirstWhen() {
         fillList();
-        this.list.removeFromFirstWhen(x -> x.val < 200);
+        this.list.removeFromFirstWhen(x -> x < 200);
         assertEquals(800, this.list.size());
-        assertEquals(3200, this.list.estimatedBytes());
-        assertEquals(200,   this.list.get(0).val);
+        assertEquals(200, (int) this.list.get(0));
 
         for (int i = 0; i < 800; i++) {
-            assertEquals(200 + i,  this.list.get(i).val);
+            assertEquals(200 + i, (int) this.list.get(i));
         }
 
-        this.list.removeFromFirstWhen(x -> x.val < 500);
+        this.list.removeFromFirstWhen(x -> x < 500);
         assertEquals(500, this.list.size());
-        assertEquals(2000, this.list.estimatedBytes());
         for (int i = 0; i < 500; i++) {
-            assertEquals(500 + i, this.list.get(i).val);
+            assertEquals(500 + i, (int) this.list.get(i));
         }
 
-        this.list.removeFromFirstWhen(x -> x.val < 1000);
+        this.list.removeFromFirstWhen(x -> x < 1000);
         assertTrue(this.list.isEmpty());
-        assertEquals(0, this.list.estimatedBytes());
         assertEquals(0, this.list.segmentSize());
 
         fillList();
@@ -171,12 +147,11 @@ public class SegmentListTest {
         fillList();
 
         // remove elements is greater or equal to 150.
-        this.list.removeFromLastWhen(x -> x.val >= 150);
+        this.list.removeFromLastWhen(x -> x >= 150);
         assertEquals(150, this.list.size());
-        assertEquals(600, this.list.estimatedBytes());
         assertFalse(this.list.isEmpty());
         for (int i = 0; i < 150; i++) {
-            assertEquals(i,  this.list.get(i).val);
+            assertEquals(i, (int) this.list.get(i));
         }
         try {
             this.list.get(151);
@@ -187,12 +162,11 @@ public class SegmentListTest {
         assertEquals(150 / SegmentList.SEGMENT_SIZE + 1, this.list.segmentSize());
 
         // remove  elements is greater or equal to 32.
-        this.list.removeFromLastWhen(x -> x.val >= 32);
+        this.list.removeFromLastWhen(x -> x >= 32);
         assertEquals(32, this.list.size());
-        assertEquals(128, this.list.estimatedBytes());
         assertFalse(this.list.isEmpty());
         for (int i = 0; i < 32; i++) {
-            assertEquals(i,  this.list.get(i).val);
+            assertEquals(i, (int) this.list.get(i));
         }
         try {
             this.list.get(32);
@@ -205,12 +179,11 @@ public class SegmentListTest {
         // Add elements again.
         fillList();
         assertEquals(1032, this.list.size());
-        assertEquals(1032*4, this.list.estimatedBytes());
         for (int i = 0; i < 1032; i++) {
             if (i < 32) {
-                assertEquals(i,  this.list.get(i).val);
+                assertEquals(i, (int) this.list.get(i));
             } else {
-                assertEquals(i - 32, this.list.get(i).val);
+                assertEquals(i - 32, (int) this.list.get(i));
             }
         }
     }
@@ -218,11 +191,10 @@ public class SegmentListTest {
     @Test
     public void testAddPeek() {
         for (int i = 0; i < 1000; i++) {
-            this.list.add(new WrapperInteger(i));
-            assertEquals(i, this.list.peekLast().val);
-            assertEquals(0, this.list.peekFirst().val);
+            this.list.add(i);
+            assertEquals(i, (int) this.list.peekLast());
+            assertEquals(0, (int) this.list.peekFirst());
         }
-        assertEquals(4000, this.list.estimatedBytes());
     }
 
     @Test
@@ -234,7 +206,7 @@ public class SegmentListTest {
         double segListOps = 0;
         // test ArrayDequeue
         {
-            ArrayDeque<WrapperInteger> deque = new ArrayDeque<>();
+            ArrayDeque<Integer> deque = new ArrayDeque<>();
             System.gc();
             // wramup
             benchArrayDequeue(warmupRepeats, deque);
@@ -267,10 +239,10 @@ public class SegmentListTest {
 
     }
 
-    private void benchArrayDequeue(final int repeats, final ArrayDeque<WrapperInteger> deque) {
+    private void benchArrayDequeue(final int repeats, final ArrayDeque<Integer> deque) {
         int start = 0;
         for (int i = 0; i < repeats; i++) {
-            List<WrapperInteger> tmpList = genData(start);
+            List<Integer> tmpList = genData(start);
             deque.addAll(tmpList);
             //            for (Integer o : tmpList) {
             //                deque.add(o);
@@ -281,7 +253,7 @@ public class SegmentListTest {
 
             int index = 0;
             for (int j = 0; j < deque.size(); j++) {
-                if (deque.get(j).val > removePos) {
+                if (deque.get(j) > removePos) {
                     index = j;
                     break;
                 }
@@ -295,11 +267,11 @@ public class SegmentListTest {
         }
     }
 
-    private List<WrapperInteger> genData(final int start) {
+    private List<Integer> genData(final int start) {
         int n = ThreadLocalRandom.current().nextInt(500) + 10;
-        List<WrapperInteger> tmpList = new ArrayList<>(n);
+        List<Integer> tmpList = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
-            tmpList.add(new WrapperInteger(i + start));
+            tmpList.add(i + start);
         }
         return tmpList;
     }
@@ -308,16 +280,14 @@ public class SegmentListTest {
         int start = 0;
 
         for (int i = 0; i < repeats; i++) {
-            List<WrapperInteger> tmpList = genData(start);
+            List<Integer> tmpList = genData(start);
             this.list.addAll(tmpList);
             //            for(Integer o: tmpList) {
             //                list.add(o);
             //            }
-            assertEquals(this.list.size()*4, this.list.estimatedBytes());
             int removePos = start + ThreadLocalRandom.current().nextInt(tmpList.size());
             this.list.get(removePos - start);
-            this.list.removeFromFirstWhen(x -> x.val <= removePos);
-            assertEquals(this.list.size()*4, this.list.estimatedBytes());
+            this.list.removeFromFirstWhen(x -> x <= removePos);
             start += tmpList.size();
         }
     }
