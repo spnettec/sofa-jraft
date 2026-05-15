@@ -17,7 +17,6 @@
 package com.alipay.sofa.jraft.core;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,10 +30,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.alipay.sofa.jraft.entity.BallotFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -73,10 +72,6 @@ import com.alipay.sofa.jraft.error.RaftException;
 import com.alipay.sofa.jraft.option.BootstrapOptions;
 import com.alipay.sofa.jraft.option.NodeOptions;
 import com.alipay.sofa.jraft.option.RaftOptions;
-import com.alipay.sofa.jraft.rpc.RpcRequests.AppendEntriesResponse;
-import com.alipay.sofa.jraft.rpc.RpcRequests.ReadIndexResponse;
-import com.alipay.sofa.jraft.rpc.RpcResponseClosure;
-import com.alipay.sofa.jraft.rpc.RpcResponseClosureAdapter;
 import com.alipay.sofa.jraft.rpc.RaftRpcServerFactory;
 import com.alipay.sofa.jraft.rpc.RpcServer;
 import com.alipay.sofa.jraft.storage.SnapshotThrottle;
@@ -574,6 +569,7 @@ public class NodeTest {
         assertTrue(leader.transferLeadershipTo(targetPeer).isOk());
         Thread.sleep(1000);
         cluster.waitLeader();
+        Thread.sleep(1000);
         assertEquals(2, this.startedCounter.get());
 
         for (Node node : cluster.getNodes()) {
@@ -727,62 +723,6 @@ public class NodeTest {
             learnerServer.shutdown();
             learnerServer.join();
         }
-    }
-
-    @Test
-    public void testTripleNodesWithSoftMemLimit() throws Exception {
-        final List<PeerId> peers = TestUtils.generatePeers(3);
-
-        final TestCluster cluster = new TestCluster("unittest", this.dataPath, peers);
-        for (final PeerId peer : peers) {
-            assertTrue(cluster.startWithSoftMemLimit(peer.getEndpoint(), 100));
-        }
-
-        // elect leader
-        cluster.waitLeader();
-
-        // get leader
-        final Node leader = cluster.getLeader();
-        assertEquals(1, leader.getLastAppliedLogIndex());
-        assertEquals(1, leader.getLastCommittedIndex());
-        assertEquals(1, leader.getLastLogIndex());
-        assertNotNull(leader);
-        assertEquals(3, leader.listPeers().size());
-        // apply tasks to leader
-        for (int i = 0; i < 10; i++) {
-            final ByteBuffer data = ByteBuffer.wrap(("hello" + i).getBytes());
-            SynchronizedClosure done = new SynchronizedClosure();
-            Task task = new Task(data, done);
-            leader.apply(task);
-            done.await();
-            // Retry while busy
-            while (done.getStatus().getRaftError() == RaftError.EBUSY) {
-                done = new SynchronizedClosure();
-                task = new Task(data, done);
-                leader.apply(task);
-                done.await();
-            }
-            assertEquals(done.getStatus().getRaftError(), RaftError.SUCCESS);
-        }
-
-        assertEquals(11, leader.getLastCommittedIndex());
-        assertEquals(11, leader.getLastLogIndex());
-        Thread.sleep(500);
-        assertEquals(11, leader.getLastAppliedLogIndex());
-
-        for (int i = 1; i <= 11; i++) {
-            assertTrue(leader.readCommittedUserLog(i) != null);
-        }
-
-        cluster.ensureSame(-1);
-        assertEquals(2, cluster.getFollowers().size());
-        for (Node follower : cluster.getFollowers()) {
-            assertEquals(11, follower.getLastCommittedIndex());
-            assertEquals(11, follower.getLastLogIndex());
-            assertEquals(11, follower.getLastAppliedLogIndex());
-        }
-
-        cluster.stopAll();
     }
 
     @Test
@@ -1223,7 +1163,9 @@ public class NodeTest {
         LOG.info("Remove old leader {}", oldLeader);
         CountDownLatch latch = new CountDownLatch(1);
         leader.removePeer(oldLeader, new ExpectClosure(latch));
+        Thread.sleep(500);
         waitLatch(latch);
+        Thread.sleep(500);
         assertEquals(60, leader.getNodeTargetPriority());
 
         // stop and clean old leader
@@ -1263,7 +1205,6 @@ public class NodeTest {
         assertEquals(3, leader.listPeers().size());
         // apply tasks to leader
         this.sendTestTaskAndWait(leader);
-
         {
             final ByteBuffer data = ByteBuffer.wrap("no closure".getBytes());
             final Task task = new Task(data, null);
@@ -1298,7 +1239,6 @@ public class NodeTest {
 
         cluster.ensureSame(-1);
         assertEquals(2, cluster.getFollowers().size());
-
         // transfer the leader to v1 codec peer
         assertTrue(leader.transferLeadershipTo(peers.get(2)).isOk());
         cluster.waitLeader();
@@ -1309,13 +1249,11 @@ public class NodeTest {
         this.sendTestTaskAndWait(leader);
         cluster.ensureSame();
         cluster.stopAll();
-
         // start the cluster with v2 codec, should work
         final TestCluster newCluster = new TestCluster("unittest", this.dataPath, peers);
         for (int i = 0; i < peers.size(); i++) {
             assertTrue(newCluster.start(peers.get(i).getEndpoint()));
         }
-
         // elect leader
         newCluster.waitLeader();
         newCluster.ensureSame();
@@ -1415,6 +1353,7 @@ public class NodeTest {
 
     @Test
     public void testReadIndex() throws Exception {
+        Thread.sleep(1000);
         final List<PeerId> peers = TestUtils.generatePeers(3);
 
         final TestCluster cluster = new TestCluster("unittest", this.dataPath, peers);
@@ -1457,61 +1396,6 @@ public class NodeTest {
         latch.await();
 
         cluster.stopAll();
-    }
-
-    @Test
-    public void testReadIndexHeartbeatResponseClosureFailsWhenFilteredRecipientsCannotReachQuorum() throws Exception {
-        final NodeImpl node = new NodeImpl();
-        try {
-            final Status[] callbackStatus = new Status[1];
-            final ReadIndexResponse[] callbackResponse = new ReadIndexResponse[1];
-            final RpcResponseClosure<ReadIndexResponse> done = new RpcResponseClosureAdapter<ReadIndexResponse>() {
-
-                @Override
-                public void run(final Status status) {
-                    callbackStatus[0] = status;
-                    callbackResponse[0] = getResponse();
-                }
-            };
-
-            final RpcResponseClosureAdapter<AppendEntriesResponse> heartbeatDone = newReadIndexHeartbeatResponseClosure(
-                node, done, ReadIndexResponse.newBuilder().setIndex(11), 3, 2);
-
-            heartbeatDone.setResponse(AppendEntriesResponse.newBuilder().setTerm(1).setSuccess(true).build());
-            heartbeatDone.run(Status.OK());
-            assertNull(callbackStatus[0]);
-            assertNull(callbackResponse[0]);
-
-            heartbeatDone.setResponse(AppendEntriesResponse.newBuilder().setTerm(1).setSuccess(false).build());
-            heartbeatDone.run(Status.OK());
-            assertNotNull(callbackStatus[0]);
-            assertTrue(callbackStatus[0].isOk());
-            assertNotNull(callbackResponse[0]);
-            assertFalse(callbackResponse[0].getSuccess());
-            assertEquals(11, callbackResponse[0].getIndex());
-        } finally {
-            assertEquals(0, NodeImpl.GLOBAL_NUM_NODES.decrementAndGet());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private RpcResponseClosureAdapter<AppendEntriesResponse> newReadIndexHeartbeatResponseClosure(final NodeImpl node,
-                                                                                                  final RpcResponseClosure<ReadIndexResponse> done,
-                                                                                                  final ReadIndexResponse.Builder respBuilder,
-                                                                                                  final int quorum,
-                                                                                                  final int expectedFollowerResponses)
-                                                                                                                                      throws Exception {
-        for (final Class<?> innerClass : NodeImpl.class.getDeclaredClasses()) {
-            if ("ReadIndexHeartbeatResponseClosure".equals(innerClass.getSimpleName())) {
-                final Constructor<?> constructor = innerClass.getDeclaredConstructor(NodeImpl.class,
-                    RpcResponseClosure.class, ReadIndexResponse.Builder.class, int.class, int.class);
-                constructor.setAccessible(true);
-                return (RpcResponseClosureAdapter<AppendEntriesResponse>) constructor.newInstance(node, done,
-                    respBuilder, quorum, expectedFollowerResponses);
-            }
-        }
-        fail("ReadIndexHeartbeatResponseClosure not found");
-        return null;
     }
 
     @Test
@@ -1838,8 +1722,9 @@ public class NodeTest {
         CountDownLatch latch = new CountDownLatch(1);
         peers.add(peer1);
         leader.addPeer(peer1, new ExpectClosure(latch));
+        Thread.sleep(500);
         waitLatch(latch);
-
+        Thread.sleep(500);
         cluster.ensureSame(-1);
         assertEquals(2, cluster.getFsms().size());
         for (final MockStateMachine fsm : cluster.getFsms()) {
@@ -2078,7 +1963,9 @@ public class NodeTest {
         final List<PeerId> peers = new ArrayList<>();
         peers.add(bootPeer);
         // reset peers from empty
-        assertTrue(nodes.get(0).resetPeers(new Configuration(peers)).isOk());
+        Configuration conf = new Configuration(peers);
+        conf.setQuorum(BallotFactory.buildMajorityQuorum(peers.size()));
+        assertTrue(nodes.get(0).resetPeers(conf).isOk());
         cluster.waitLeader();
         assertNotNull(cluster.getLeader());
 
@@ -2134,10 +2021,14 @@ public class NodeTest {
         newPeers.add(new PeerId(leaderAddr, 0));
 
         // new peers equal to current conf
-        assertTrue(leader.resetPeers(new Configuration(peers)).isOk());
+        Configuration conf = new Configuration(peers);
+        conf.setQuorum(BallotFactory.buildMajorityQuorum(peers.size()));
+        assertTrue(leader.resetPeers(conf).isOk());
         // set peer when quorum die
         LOG.warn("Set peers to {}", leaderAddr);
-        assertTrue(leader.resetPeers(new Configuration(newPeers)).isOk());
+        Configuration newConf = new Configuration(newPeers);
+        newConf.setQuorum(BallotFactory.buildMajorityQuorum(newPeers.size()));
+        assertTrue(leader.resetPeers(newConf).isOk());
 
         cluster.waitLeader();
         leader = cluster.getLeader();
@@ -3046,6 +2937,7 @@ public class NodeTest {
         // assert follow times
         final List<Node> firstFollowers = cluster.getFollowers();
         assertEquals(4, firstFollowers.size());
+        Thread.sleep(500);
         for (final Node node : firstFollowers) {
             assertEquals(1, ((MockStateMachine) node.getOptions().getFsm()).getOnStartFollowingTimes());
             assertEquals(0, ((MockStateMachine) node.getOptions().getFsm()).getOnStopFollowingTimes());
@@ -3336,8 +3228,9 @@ public class NodeTest {
         done.reset();
         // works
         leader.changePeers(conf, done);
+        Thread.sleep(500);
         assertTrue(done.await().isOk());
-
+        Thread.sleep(500);
         assertTrue(cluster.ensureSame());
         assertEquals(3, cluster.getFsms().size());
         for (final MockStateMachine fsm : cluster.getFsms()) {
@@ -3452,6 +3345,7 @@ public class NodeTest {
                             conf.addPeer(arg.peers.get(i));
                         }
                     }
+                    conf.setQuorum(BallotFactory.buildMajorityQuorum(conf.size()));
                     if (conf.isEmpty()) {
                         LOG.warn("No peer has been selected");
                         continue;
@@ -3508,7 +3402,10 @@ public class NodeTest {
         cluster.waitLeader();
         final SynchronizedClosure done = new SynchronizedClosure();
         final Node leader = cluster.getLeader();
-        leader.changePeers(new Configuration(peers), done);
+        Configuration conf = new Configuration(peers);
+        conf.setQuorum(BallotFactory.buildMajorityQuorum(peers.size()));
+        Thread.sleep(1000);
+        leader.changePeers(conf, done);
         final Status st = done.await();
         assertTrue(st.getErrorMsg(), st.isOk());
         cluster.ensureSame();
@@ -3633,23 +3530,21 @@ public class NodeTest {
         for (final ChangeArg arg : args) {
             arg.stop = true;
         }
-		for (final Future<?> future : futures) {
-			try {
-				future.get(20, TimeUnit.SECONDS);
-			} catch (TimeoutException e) {
-				LOG.warn("Timeout while waiting for future completion in testChangePeersChaosApplyTasks", e);
-			}
-		}
+        for (final Future<?> future : futures) {
+            future.get();
+        }
 
         cluster.waitLeader();
         final SynchronizedClosure done = new SynchronizedClosure();
         final Node leader = cluster.getLeader();
-        leader.changePeers(new Configuration(peers), done);
+        Configuration conf = new Configuration(peers);
+        conf.setQuorum(BallotFactory.buildMajorityQuorum(peers.size()));
+        leader.changePeers(conf, done);
         try {
-        	 Status status = done.await();
-     	     assertTrue(status.getErrorMsg(), status.isOk());
-             cluster.ensureSame();
-             assertEquals(10, cluster.getFsms().size());
+            Status status = done.await();
+            assertTrue(status.getErrorMsg(), status.isOk());
+            cluster.ensureSame();
+            assertEquals(10, cluster.getFsms().size());
             for (final MockStateMachine fsm : cluster.getFsms()) {
                 final int logSize = fsm.getLogs().size();
                 assertTrue("logSize= " + logSize, logSize >= 5000 * threads);

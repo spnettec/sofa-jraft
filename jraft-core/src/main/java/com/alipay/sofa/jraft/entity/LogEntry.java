@@ -18,14 +18,15 @@ package com.alipay.sofa.jraft.entity;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 import com.alipay.sofa.jraft.entity.codec.LogEntryDecoder;
 import com.alipay.sofa.jraft.entity.codec.LogEntryEncoder;
 import com.alipay.sofa.jraft.entity.codec.v1.LogEntryV1CodecFactory;
 import com.alipay.sofa.jraft.entity.codec.v1.V1Decoder;
 import com.alipay.sofa.jraft.entity.codec.v1.V1Encoder;
+import com.alipay.sofa.jraft.entity.codec.v2.LogOutter;
 import com.alipay.sofa.jraft.util.CrcUtil;
-import com.alipay.sofa.jraft.util.SegmentList.EstimatedSize;
 
 /**
  * A replica log entry.
@@ -34,31 +35,42 @@ import com.alipay.sofa.jraft.util.SegmentList.EstimatedSize;
  *
  * 2018-Mar-12 3:13:02 PM
  */
-public class LogEntry implements Checksum, EstimatedSize {
+public class LogEntry implements Checksum {
 
-    public static final ByteBuffer  EMPTY_DATA = ByteBuffer.wrap(new byte[0]);
-
-    // cached value for estimatedSize()
-    private volatile transient long estimatedSize;
+    public static final ByteBuffer EMPTY_DATA = ByteBuffer.wrap(new byte[0]);
 
     /** entry type */
-    private EnumOutter.EntryType    type;
+    private EnumOutter.EntryType   type;
     /** log id with index/term */
-    private LogId                   id         = new LogId(0, 0);
+    private LogId                  id         = new LogId(0, 0);
     /** log entry current peers */
-    private List<PeerId>            peers;
+    private List<PeerId>           peers;
     /** log entry old peers */
-    private List<PeerId>            oldPeers;
+    private List<PeerId>           oldPeers;
     /** log entry current learners */
-    private List<PeerId>            learners;
+    private List<PeerId>           learners;
     /** log entry old learners */
-    private List<PeerId>            oldLearners;
+    private List<PeerId>           oldLearners;
     /** entry data */
-    private ByteBuffer              data       = EMPTY_DATA;
+    private ByteBuffer             data       = EMPTY_DATA;
     /** checksum for log entry*/
-    private long                    checksum;
+    private long                   checksum;
     /** true when the log has checksum **/
-    private boolean                 hasChecksum;
+    private boolean                hasChecksum;
+    /** read factor for flexible raft **/
+    private Integer                readFactor;
+    /** write factor for flexible raft **/
+    private Integer                writeFactor;
+    /** old read factor for flexible raft **/
+    private Integer                oldReadFactor;
+    /** old write factor for flexible raft **/
+    private Integer                oldWriteFactor;
+    /** enable flexible raft or not **/
+    private Boolean                isEnableFlexible;
+    /** quorum for log entry **/
+    private LogOutter.Quorum       quorum;
+    /** old quorum for log entry **/
+    private LogOutter.Quorum       oldQuorum;
 
     public List<PeerId> getLearners() {
         return this.learners;
@@ -88,25 +100,6 @@ public class LogEntry implements Checksum, EstimatedSize {
     public boolean hasLearners() {
         return (this.learners != null && !this.learners.isEmpty())
                || (this.oldLearners != null && !this.oldLearners.isEmpty());
-    }
-
-    // The estimated memory size of log entry
-    public long estimatedSize() {
-        if (this.estimatedSize > 0) {
-            return this.estimatedSize;
-        }
-
-        this.estimatedSize = 140L + estimatedSize(this.learners) + //
-                             estimatedSize(this.oldLearners) + //
-                             estimatedSize(this.peers) + //
-                             estimatedSize(this.oldPeers) + //
-                             (this.data != null ? this.data.remaining() : 0) + 56;
-
-        return this.estimatedSize;
-    }
-
-    private static int estimatedSize(List<PeerId> peers) {
-        return PeerId.ESTIMATED_BYTES * (peers != null ? peers.size() : 0);
     }
 
     @Override
@@ -218,6 +211,70 @@ public class LogEntry implements Checksum, EstimatedSize {
         this.oldPeers = oldPeers;
     }
 
+    public Integer getReadFactor() {
+        return readFactor;
+    }
+
+    public void setReadFactor(Integer readFactor) {
+        this.readFactor = readFactor;
+    }
+
+    public Integer getWriteFactor() {
+        return writeFactor;
+    }
+
+    public void setWriteFactor(Integer writeFactor) {
+        this.writeFactor = writeFactor;
+    }
+
+    public Integer getOldReadFactor() {
+        return oldReadFactor;
+    }
+
+    public void setOldReadFactor(Integer oldReadFactor) {
+        this.oldReadFactor = oldReadFactor;
+    }
+
+    public Integer getOldWriteFactor() {
+        return oldWriteFactor;
+    }
+
+    public void setOldWriteFactor(Integer oldWriteFactor) {
+        this.oldWriteFactor = oldWriteFactor;
+    }
+
+    public Boolean getEnableFlexible() {
+        return isEnableFlexible;
+    }
+
+    public void setEnableFlexible(Boolean enableFlexible) {
+        isEnableFlexible = enableFlexible;
+    }
+
+    public void setQuorum(LogOutter.Quorum quorum) {
+        this.quorum = quorum;
+    }
+
+    public LogOutter.Quorum getQuorum() {
+        return quorum;
+    }
+
+    public void setOldQuorum(LogOutter.Quorum quorum) {
+        this.oldQuorum = quorum;
+    }
+
+    public LogOutter.Quorum getOldQuorum() {
+        return oldQuorum;
+    }
+
+    public boolean haveFactorValue() {
+        return Objects.nonNull(readFactor) || Objects.nonNull(writeFactor);
+    }
+
+    public boolean haveOldFactorValue() {
+        return Objects.nonNull(oldReadFactor) || Objects.nonNull(oldWriteFactor);
+    }
+
     /**
      * Returns the log data, it's not read-only, you SHOULD take care it's modification and
      * thread-safety by yourself.
@@ -255,7 +312,9 @@ public class LogEntry implements Checksum, EstimatedSize {
     public String toString() {
         return "LogEntry [type=" + this.type + ", id=" + this.id + ", peers=" + this.peers + ", oldPeers="
                + this.oldPeers + ", learners=" + this.learners + ", oldLearners=" + this.oldLearners + ", data="
-               + (this.data != null ? this.data.remaining() : 0) + "]";
+               + (this.data != null ? this.data.remaining() : 0) + ", readFactor=" + this.readFactor + ", writeFactor="
+               + this.writeFactor + ", oldReadFactor=" + oldReadFactor + ", oldWriteFactor=" + oldWriteFactor
+               + ", quorum=" + quorum + ", oldQuorum=" + oldQuorum + ", isEnableFlexible=" + isEnableFlexible + "]";
     }
 
     @Override
