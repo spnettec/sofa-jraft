@@ -68,6 +68,8 @@ public class CliServiceTest {
 
     private Configuration    conf;
 
+    private int              initPort;
+
     @Rule
     public TestName          testName          = new TestName();
 
@@ -79,15 +81,17 @@ public class CliServiceTest {
         this.dataPath = TestUtils.mkTempDir();
         FileUtils.forceMkdir(new File(this.dataPath));
         assertEquals(NodeImpl.GLOBAL_NUM_NODES.get(), 0);
-        final List<PeerId> peers = TestUtils.generatePeers(3);
+        this.initPort = TestUtils.allocatePortBase(200);
+        final List<PeerId> peers = TestUtils.generatePeers(3, this.initPort);
 
         final LinkedHashSet<PeerId> learners = new LinkedHashSet<>();
         //2 learners
         for (int i = 0; i < 2; i++) {
-            learners.add(new PeerId(TestUtils.getMyIp(), TestUtils.INIT_PORT + LEARNER_PORT_STEP + i));
+            learners.add(new PeerId(TestUtils.getMyIp(), this.initPort + LEARNER_PORT_STEP + i));
         }
 
-        this.cluster = new TestCluster(this.groupId, this.dataPath, peers, learners, 300);
+        final int electionTimeoutMs = "testChangePeers".equals(this.testName.getMethodName()) ? 5000 : 1000;
+        this.cluster = new TestCluster(this.groupId, this.dataPath, peers, learners, electionTimeoutMs);
         for (final PeerId peer : peers) {
             this.cluster.start(peer.getEndpoint());
         }
@@ -106,8 +110,12 @@ public class CliServiceTest {
 
     @After
     public void teardown() throws Exception {
-        this.cliService.shutdown();
-        this.cluster.stopAll();
+        if (this.cliService != null) {
+            this.cliService.shutdown();
+        }
+        if (this.cluster != null) {
+            this.cluster.stopAll();
+        }
         if (NodeImpl.GLOBAL_NUM_NODES.get() > 0) {
             Thread.sleep(1000);
             assertEquals(NodeImpl.GLOBAL_NUM_NODES.get(), 0);
@@ -150,7 +158,7 @@ public class CliServiceTest {
 
     @Test
     public void testLearnerServices() throws Exception {
-        final PeerId learner3 = new PeerId(TestUtils.getMyIp(), TestUtils.INIT_PORT + LEARNER_PORT_STEP + 3);
+        final PeerId learner3 = new PeerId(TestUtils.getMyIp(), this.initPort + LEARNER_PORT_STEP + 3);
         assertTrue(this.cluster.startLearner(learner3));
         sendTestTaskAndWait(this.cluster.getLeader(), 0);
         Thread.sleep(500);
@@ -217,7 +225,7 @@ public class CliServiceTest {
         Thread.sleep(1000);
         assertEquals(Arrays.asList(learner3), this.cliService.getLearners(this.groupId, this.conf));
         assertTrue(this.cliService.getAliveLearners(this.groupId, this.conf).isEmpty());
-        final PeerId learner4 = new PeerId(TestUtils.getMyIp(), TestUtils.INIT_PORT + LEARNER_PORT_STEP + 4);
+        final PeerId learner4 = new PeerId(TestUtils.getMyIp(), this.initPort + LEARNER_PORT_STEP + 4);
         assertTrue(this.cluster.startLearner(learner4));
         this.cliService.addLearners(this.groupId, this.conf, Arrays.asList(learner4));
         Thread.sleep(1000);
@@ -233,7 +241,7 @@ public class CliServiceTest {
 
     @Test
     public void testAddPeerRemovePeer() throws Exception {
-        final PeerId peer3 = new PeerId(TestUtils.getMyIp(), TestUtils.INIT_PORT + 3);
+        final PeerId peer3 = new PeerId(TestUtils.getMyIp(), this.initPort + 3);
         assertTrue(this.cluster.start(peer3.getEndpoint()));
         sendTestTaskAndWait(this.cluster.getLeader(), 0);
         Thread.sleep(100);
@@ -266,7 +274,7 @@ public class CliServiceTest {
 
     @Test
     public void testChangePeers() throws Exception {
-        final List<PeerId> newPeers = TestUtils.generatePeers(10);
+        final List<PeerId> newPeers = TestUtils.generatePeers(10, this.initPort);
         newPeers.removeAll(this.conf.getPeerSet());
         for (final PeerId peer : newPeers) {
             assertTrue(this.cluster.start(peer.getEndpoint()));
@@ -276,9 +284,13 @@ public class CliServiceTest {
         assertNotNull(oldLeaderNode);
         final PeerId oldLeader = oldLeaderNode.getNodeId().getPeerId();
         assertNotNull(oldLeader);
+        for (final PeerId peer : newPeers) {
+            assertTrue(((NodeImpl) oldLeaderNode).getRpcService().connect(peer.getEndpoint()));
+        }
         Configuration conf = new Configuration(newPeers);
         conf.setQuorum(BallotFactory.buildMajorityQuorum(newPeers.size()));
-        assertTrue(this.cliService.changePeers(this.groupId, this.conf, conf).isOk());
+        final Status status = this.cliService.changePeers(this.groupId, this.conf, conf);
+        assertTrue(status.toString(), status.isOk());
         this.cluster.waitLeader();
         final PeerId newLeader = this.cluster.getLeader().getNodeId().getPeerId();
         assertNotEquals(oldLeader, newLeader);
@@ -288,6 +300,7 @@ public class CliServiceTest {
     @Test
     public void testSnapshot() throws Exception {
         sendTestTaskAndWait(this.cluster.getLeader(), 0);
+        this.cluster.ensureSame();
         assertEquals(5, this.cluster.getFsms().size());
         for (final MockStateMachine fsm : this.cluster.getFsms()) {
             assertEquals(0, fsm.getSaveSnapshotTimes());
@@ -299,9 +312,26 @@ public class CliServiceTest {
         for (final PeerId peer : this.conf.getLearners()) {
             assertTrue(this.cliService.snapshot(this.groupId, peer).isOk());
         }
-        Thread.sleep(1000);
+        waitForSnapshotTimes(1);
+    }
+
+    private void waitForSnapshotTimes(final int expected) throws InterruptedException {
+        final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (System.nanoTime() < deadline) {
+            boolean allDone = true;
+            for (final MockStateMachine fsm : this.cluster.getFsms()) {
+                if (fsm.getSaveSnapshotTimes() != expected) {
+                    allDone = false;
+                    break;
+                }
+            }
+            if (allDone) {
+                return;
+            }
+            Thread.sleep(50);
+        }
         for (final MockStateMachine fsm : this.cluster.getFsms()) {
-            assertEquals(1, fsm.getSaveSnapshotTimes());
+            assertEquals(expected, fsm.getSaveSnapshotTimes());
         }
     }
 

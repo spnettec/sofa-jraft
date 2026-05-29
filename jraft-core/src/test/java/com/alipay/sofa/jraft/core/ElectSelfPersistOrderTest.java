@@ -106,7 +106,7 @@ public class ElectSelfPersistOrderTest {
      */
     @Test
     public void testPersistFailurePreventsRpcSend() throws Exception {
-        final List<PeerId> peers = TestUtils.generatePeers(3);
+        final List<PeerId> peers = TestUtils.generatePeers(3, TestUtils.allocatePortBase(200));
         final String groupId = "electself-test";
         final Configuration conf = new Configuration(peers);
 

@@ -18,6 +18,8 @@ package com.alipay.sofa.jraft.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -120,7 +122,7 @@ public class TestCluster {
     }
 
     public TestCluster(final String name, final String dataPath, final List<PeerId> peers, final int electionTimeoutMs) {
-        this(name, dataPath, peers, new LinkedHashSet<>(), 300);
+        this(name, dataPath, peers, new LinkedHashSet<>(), electionTimeoutMs);
     }
 
     public TestCluster(final String name, final String dataPath, final List<PeerId> peers,
@@ -188,6 +190,7 @@ public class TestCluster {
         if (this.serverMap.get(listenAddr.toString()) != null) {
             return true;
         }
+        waitForPortAvailable(listenAddr);
 
         final NodeOptions nodeOptions = new NodeOptions();
         nodeOptions.setElectionTimeoutMs(this.electionTimeoutMs);
@@ -238,6 +241,7 @@ public class TestCluster {
         if (this.serverMap.get(listenAddr.toString()) != null) {
             return true;
         }
+        waitForPortAvailable(listenAddr);
 
         final NodeOptions nodeOptions = new NodeOptions();
         nodeOptions.setElectionTimeoutMs(this.electionTimeoutMs);
@@ -287,6 +291,7 @@ public class TestCluster {
         if (this.serverMap.get(listenAddr.toString()) != null) {
             return true;
         }
+        waitForPortAvailable(listenAddr);
 
         final NodeOptions nodeOptions = new NodeOptions();
         nodeOptions.setElectionTimeoutMs(this.electionTimeoutMs);
@@ -361,24 +366,49 @@ public class TestCluster {
             latch.await();
         }
         final RaftGroupService raftGroupService = this.serverMap.remove(listenAddr.toString());
-        raftGroupService.shutdown();
-        raftGroupService.join();
+        if (raftGroupService != null) {
+            raftGroupService.shutdown();
+            raftGroupService.join();
+        }
         return node != null;
     }
 
     public void stopAll() throws InterruptedException {
         final List<Endpoint> addrs = getAllNodes();
-        final List<Node> nodes = new ArrayList<>();
+        final List<RaftGroupService> services = new ArrayList<>();
         for (final Endpoint addr : addrs) {
-            final Node node = removeNode(addr);
-            node.shutdown();
-            nodes.add(node);
-            this.serverMap.remove(addr.toString()).shutdown();
+            removeNode(addr);
+            final RaftGroupService service = this.serverMap.remove(addr.toString());
+            if (service != null) {
+                service.shutdown();
+                services.add(service);
+            }
         }
-        for (final Node node : nodes) {
-            node.join();
+        for (final RaftGroupService service : services) {
+            service.join();
         }
         CLUSTERS.remove(this);
+    }
+
+    private static void waitForPortAvailable(final Endpoint endpoint) throws IOException {
+        final long deadline = System.currentTimeMillis() + 5000;
+        IOException lastFailure = null;
+        do {
+            try (ServerSocket socket = new ServerSocket()) {
+                socket.bind(new InetSocketAddress(endpoint.getPort()));
+                return;
+            } catch (final IOException e) {
+                lastFailure = e;
+                try {
+                    Thread.sleep(50);
+                } catch (final InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while waiting for port " + endpoint + " to be available",
+                        interrupted);
+                }
+            }
+        } while (System.currentTimeMillis() < deadline);
+        throw lastFailure;
     }
 
     public void clean(final Endpoint listenAddr) throws IOException {

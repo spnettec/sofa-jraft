@@ -16,6 +16,9 @@
  */
 package com.alipay.sofa.jraft.util;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -53,19 +56,14 @@ public final class SignalHelper {
     }
 
     private static SignalAccessor getSignalAccessor0() {
-        return hasSignal0() ? new SignalAccessor() : null;
-    }
-
-    private static boolean hasSignal0() {
         try {
-            Class.forName("sun.misc.Signal");
-            return true;
+            return new SignalAccessor();
         } catch (final Throwable t) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("sun.misc.Signal: unavailable.", t);
             }
         }
-        return false;
+        return null;
     }
 
     private SignalHelper() {
@@ -73,38 +71,47 @@ public final class SignalHelper {
 
     static class SignalAccessor {
 
+        private final Class<?>      signalClass;
+        private final Class<?>      signalHandlerClass;
+        private final Constructor<?> signalConstructor;
+        private final Method        signalHandleMethod;
+        private final Method        signalGetNameMethod;
+
+        SignalAccessor() throws ReflectiveOperationException {
+            this.signalClass = Class.forName("sun.misc.Signal");
+            this.signalHandlerClass = Class.forName("sun.misc.SignalHandler");
+            this.signalConstructor = this.signalClass.getConstructor(String.class);
+            this.signalHandleMethod = this.signalClass.getMethod("handle", this.signalClass, this.signalHandlerClass);
+            this.signalGetNameMethod = this.signalClass.getMethod("getName");
+        }
+
         public void addSignal(final String signalName, final List<JRaftSignalHandler> handlers) {
-            final sun.misc.Signal signal = new sun.misc.Signal(signalName);
-            final SignalHandlerAdapter adapter = new SignalHandlerAdapter(signal, handlers);
-            sun.misc.Signal.handle(signal, adapter);
-        }
-    }
-
-    static class SignalHandlerAdapter implements sun.misc.SignalHandler {
-
-        private final sun.misc.Signal          target;
-        private final List<JRaftSignalHandler> handlers;
-
-        public static void addSignal(final SignalHandlerAdapter adapter) {
-            sun.misc.Signal.handle(adapter.target, adapter);
-        }
-
-        public SignalHandlerAdapter(sun.misc.Signal target, List<JRaftSignalHandler> handlers) {
-            this.target = target;
-            this.handlers = handlers;
-        }
-
-        @Override
-        public void handle(final sun.misc.Signal signal) {
             try {
-                if (!this.target.equals(signal)) {
+                final Object signal = this.signalConstructor.newInstance(signalName);
+                final Object adapter = Proxy.newProxyInstance(this.signalHandlerClass.getClassLoader(),
+                    new Class<?>[] { this.signalHandlerClass }, (proxy, method, args) -> {
+                        if ("handle".equals(method.getName()) && args != null && args.length == 1) {
+                            handleSignal(signal, args[0], handlers);
+                        }
+                        return null;
+                    });
+                this.signalHandleMethod.invoke(null, signal, adapter);
+            } catch (final Throwable t) {
+                LOG.error("Fail to add signal: {}.", signalName, t);
+            }
+        }
+
+        private void handleSignal(final Object target, final Object signal, final List<JRaftSignalHandler> handlers) {
+            try {
+                if (!target.equals(signal)) {
                     return;
                 }
 
+                final String signalName = (String) this.signalGetNameMethod.invoke(signal);
                 LOG.info("Handling signal {}.", signal);
 
-                for (final JRaftSignalHandler h : this.handlers) {
-                    h.handle(signal.getName());
+                for (final JRaftSignalHandler h : handlers) {
+                    h.handle(signalName);
                 }
             } catch (final Throwable t) {
                 LOG.error("Fail to handle signal: {}.", signal, t);

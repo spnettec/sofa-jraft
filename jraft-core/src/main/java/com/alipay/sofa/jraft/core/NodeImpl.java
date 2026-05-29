@@ -145,6 +145,7 @@ public class NodeImpl implements Node, RaftServerService {
 
     private static final Logger                                            LOG                      = LoggerFactory
                                                                                                         .getLogger(NodeImpl.class);
+    private static final int                                               INTERNAL_DISRUPTOR_BUFFER_SIZE = 1024;
 
     static {
         try {
@@ -628,7 +629,7 @@ public class NodeImpl implements Node, RaftServerService {
         opts.setConfigurationManager(this.configManager);
         opts.setFsmCaller(this.fsmCaller);
         opts.setNodeMetrics(this.metrics);
-        opts.setDisruptorBufferSize(this.raftOptions.getDisruptorBufferSize());
+        opts.setDisruptorBufferSize(getInternalDisruptorBufferSize());
         opts.setRaftOptions(this.raftOptions);
         return this.logManager.init(opts);
     }
@@ -823,8 +824,12 @@ public class NodeImpl implements Node, RaftServerService {
         opts.setClosureQueue(this.closureQueue);
         opts.setNode(this);
         opts.setBootstrapId(bootstrapId);
-        opts.setDisruptorBufferSize(this.raftOptions.getDisruptorBufferSize());
+        opts.setDisruptorBufferSize(getInternalDisruptorBufferSize());
         return this.fsmCaller.init(opts);
+    }
+
+    private int getInternalDisruptorBufferSize() {
+        return Math.max(this.raftOptions.getDisruptorBufferSize(), INTERNAL_DISRUPTOR_BUFFER_SIZE);
     }
 
     private static class BootstrapStableClosure extends LogManager.StableClosure {
@@ -1252,6 +1257,13 @@ public class NodeImpl implements Node, RaftServerService {
                 LOG.warn("Node {} raise term {} when getLastLogId.", getNodeId(), this.currTerm);
                 return;
             }
+            if (!this.metaStorage.setTermAndVotedFor(this.currTerm, this.serverId)) {
+                LOG.error("Node {} failed to persist term {} and votedFor {} before sending RequestVote RPCs.",
+                    getNodeId(), this.currTerm, this.serverId);
+                stepDown(this.currTerm, false,
+                    new Status(RaftError.EIO, "Fail to persist term and votedFor before election."));
+                return;
+            }
             for (final PeerId peer : this.conf.listPeers()) {
                 if (peer.equals(this.serverId)) {
                     continue;
@@ -1273,7 +1285,6 @@ public class NodeImpl implements Node, RaftServerService {
                 this.rpcService.requestVote(peer.getEndpoint(), done.request, done);
             }
 
-            this.metaStorage.setTermAndVotedFor(this.currTerm, this.serverId);
             this.voteCtx.grant(this.serverId);
             if (this.voteCtx.isGranted()) {
                 becomeLeader();
@@ -1903,10 +1914,13 @@ public class NodeImpl implements Node, RaftServerService {
                     .compareTo(lastLogId) >= 0;
 
                 if (logIsOk && (this.votedId == null || this.votedId.isEmpty())) {
+                    if (!this.metaStorage.setVotedFor(candidateId)) {
+                        LOG.error("Node {} failed to persist votedFor {}.", getNodeId(), candidateId);
+                        break;
+                    }
                     stepDown(request.getTerm(), false, new Status(RaftError.EVOTEFORCANDIDATE,
                         "Raft node votes for some candidate, step down to restart election_timer."));
                     this.votedId = candidateId.copy();
-                    this.metaStorage.setVotedFor(candidateId);
                 }
             } while (false);
 

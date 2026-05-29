@@ -853,6 +853,7 @@ public class LogManagerImpl implements LogManager {
         LastLogIdClosure c;
         this.readLock.lock();
         try {
+            checkNotStopped();
             if (!isFlush) {
                 return this.lastLogIndex;
             } else {
@@ -898,6 +899,7 @@ public class LogManagerImpl implements LogManager {
         LastLogIdClosure c;
         this.readLock.lock();
         try {
+            checkNotStopped();
             if (!isFlush) {
                 if (this.lastLogIndex >= this.firstLogIndex) {
                     return new LogId(this.lastLogIndex, unsafeGetTerm(this.lastLogIndex));
@@ -920,6 +922,12 @@ public class LogManagerImpl implements LogManager {
             throw new IllegalStateException(e);
         }
         return c.lastLogId;
+    }
+
+    private void checkNotStopped() {
+        if (this.stopped) {
+            throw new IllegalStateException("Node is shutting down");
+        }
     }
 
     private static class TruncatePrefixClosure extends StableClosure {

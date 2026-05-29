@@ -52,10 +52,12 @@ import static org.junit.Assert.*;
 public class VotePersistenceBugTest {
 
     private String dataPath;
+    private int    initPort;
 
     @Before
     public void setup() throws Exception {
         this.dataPath = TestUtils.mkTempDir();
+        this.initPort = TestUtils.allocatePortBase(200);
         FileUtils.forceMkdir(new File(this.dataPath));
         assertEquals(NodeImpl.GLOBAL_NUM_NODES.get(), 0);
     }
@@ -149,7 +151,7 @@ public class VotePersistenceBugTest {
      */
     @Test
     public void testVoteRejectedAfterNormalRestart() throws Exception {
-        final List<PeerId> peers = TestUtils.generatePeers(3);
+        final List<PeerId> peers = TestUtils.generatePeers(3, this.initPort);
         final PeerId voter = peers.get(0);
         final PeerId candidate1 = peers.get(1);
         final PeerId candidate2 = peers.get(2);
@@ -186,7 +188,7 @@ public class VotePersistenceBugTest {
      */
     @Test
     public void testVoteNotGrantedWhenSetVotedForFails() throws Exception {
-        final List<PeerId> peers = TestUtils.generatePeers(3);
+        final List<PeerId> peers = TestUtils.generatePeers(3, this.initPort);
         final PeerId voter = peers.get(0);
         final PeerId candidate1 = peers.get(1);
 

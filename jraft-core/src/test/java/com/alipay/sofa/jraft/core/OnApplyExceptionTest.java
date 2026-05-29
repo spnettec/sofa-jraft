@@ -80,7 +80,7 @@ public class OnApplyExceptionTest {
      */
     @Test
     public void testOnApplyExceptionSetsErrorInsteadOfStalling() throws Exception {
-        final List<PeerId> peers = TestUtils.generatePeers(1);
+        final List<PeerId> peers = TestUtils.generatePeers(1, TestUtils.allocatePortBase(200));
         final PeerId peer = peers.get(0);
 
         final NodeOptions nodeOptions = new NodeOptions();

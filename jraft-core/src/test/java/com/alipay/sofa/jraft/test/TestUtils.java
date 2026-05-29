@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.alipay.sofa.jraft.JRaftUtils;
 import com.alipay.sofa.jraft.Quorum;
@@ -118,6 +119,13 @@ public class TestUtils {
     }
 
     public static String getMyIp() {
+        final String configuredHost = System.getProperty("jraft.test.host");
+        if (configuredHost != null && !configuredHost.trim().isEmpty()) {
+            return configuredHost.trim();
+        }
+        if (Boolean.parseBoolean(System.getProperty("jraft.test.useLocalhost", "true"))) {
+            return "127.0.0.1";
+        }
         String ip = null;
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -163,18 +171,33 @@ public class TestUtils {
 
     public static final int INIT_PORT = 5003;
 
+    private static final AtomicInteger NEXT_PORT_BASE = new AtomicInteger(Integer.getInteger("jraft.test.portBase",
+        INIT_PORT));
+
+    public static int allocatePortBase(final int portSpan) {
+        return NEXT_PORT_BASE.getAndAdd(portSpan);
+    }
+
     public static List<PeerId> generatePeers(final int n) {
+        return generatePeers(n, INIT_PORT);
+    }
+
+    public static List<PeerId> generatePeers(final int n, final int initPort) {
         List<PeerId> ret = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            ret.add(new PeerId(getMyIp(), INIT_PORT + i));
+            ret.add(new PeerId(getMyIp(), initPort + i));
         }
         return ret;
     }
 
     public static List<PeerId> generatePriorityPeers(final int n, final List<Integer> priorities) {
+        return generatePriorityPeers(n, priorities, INIT_PORT);
+    }
+
+    public static List<PeerId> generatePriorityPeers(final int n, final List<Integer> priorities, final int initPort) {
         List<PeerId> ret = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            Endpoint endpoint = new Endpoint(getMyIp(), INIT_PORT + i);
+            Endpoint endpoint = new Endpoint(getMyIp(), initPort + i);
             PeerId peerId = new PeerId(endpoint, 0, priorities.get(i));
             ret.add(peerId);
         }

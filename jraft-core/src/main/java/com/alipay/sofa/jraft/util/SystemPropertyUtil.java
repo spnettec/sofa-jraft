@@ -16,9 +16,6 @@
  */
 package com.alipay.sofa.jraft.util;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,11 +66,7 @@ public final class SystemPropertyUtil {
 
         String value = null;
         try {
-            if (System.getSecurityManager() == null) {
-                value = System.getProperty(key);
-            } else {
-                value = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(key));
-            }
+            value = System.getProperty(key);
         } catch (Exception e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Unable to retrieve a system property '{}'; default values will be used, {}.", key, e);

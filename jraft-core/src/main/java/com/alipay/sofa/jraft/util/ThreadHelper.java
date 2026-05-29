@@ -16,9 +16,6 @@
  */
 package com.alipay.sofa.jraft.util;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.slf4j.Logger;
@@ -44,15 +41,13 @@ public final class ThreadHelper {
     private static final Spinner SPINNER;
 
     static {
-        final Object maybeException = AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-            try {
-                // noinspection JavaReflectionMemberAccess
-                Thread.class.getDeclaredMethod("onSpinWait");
-                return null;
-            } catch (final NoSuchMethodException | SecurityException e) {
-                return e;
-            }
-        });
+        Object maybeException = null;
+        try {
+            // noinspection JavaReflectionMemberAccess
+            Thread.class.getDeclaredMethod("onSpinWait");
+        } catch (final NoSuchMethodException | SecurityException e) {
+            maybeException = e;
+        }
         if (maybeException == null) {
             SPINNER = createSpinner();
         } else {
