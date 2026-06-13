@@ -21,9 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import com.alipay.sofa.jraft.util.internal.ReferenceFieldUpdater;
-import com.alipay.sofa.jraft.util.internal.Updaters;
-
 /**
  * A list implementation based on segments. Only supports removing elements from start or end.
  * The list keep the elements in a segment list, every segment contains at most 128 elements.
@@ -345,11 +342,6 @@ public class SegmentList<T> {
             this.firstOffset = this.size = 0;
         }
     }
-
-    private static final ReferenceFieldUpdater<ArrayList<?>, Object[]> LIST_ARRAY_GETTER = Updaters
-                                                                                             .newReferenceFieldUpdater(
-                                                                                                 ArrayList.class,
-                                                                                                 "elementData");
 
     @SuppressWarnings("unchecked")
     public void addAll(final Collection<T> coll) {

@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.alipay.sofa.jraft.Quorum;
 import com.alipay.sofa.jraft.util.*;
+import com.alipay.sofa.jraft.entity.BallotFactory;
 import org.rocksdb.BlockBasedTableConfig;
 import org.rocksdb.ColumnFamilyDescriptor;
 import org.rocksdb.ColumnFamilyHandle;
@@ -255,15 +256,12 @@ public class RocksDBLogStorage implements LogStorage, Describer {
                         if (entry.getType() == EntryType.ENTRY_TYPE_CONFIGURATION) {
                             final ConfigurationEntry confEntry = new ConfigurationEntry();
                             confEntry.setId(new LogId(entry.getId().getIndex(), entry.getId().getTerm()));
-                            Quorum quorum = new Quorum(entry.getQuorum().getW(), entry.getQuorum().getR());
+                            Quorum quorum = getQuorum(entry);
                             Configuration conf = new Configuration(entry.getPeers(), entry.getLearners(), quorum,
                                     entry.getWriteFactor(), entry.getReadFactor(), entry.getEnableFlexible());
                             confEntry.setConf(conf);
                             if (entry.getOldPeers() != null) {
-                                Quorum oldQuorum = null;
-                                if(Objects.nonNull(entry.getOldQuorum())) {
-                                    oldQuorum = new Quorum(entry.getOldQuorum().getW(), entry.getOldQuorum().getR());
-                                }
+                                Quorum oldQuorum = getOldQuorum(entry);
                                 Configuration oldConf = new Configuration(entry.getOldPeers(), entry.getOldLearners(),
                                         oldQuorum, entry.getOldWriteFactor(), entry.getOldReadFactor(), entry.getEnableFlexible());
                                 confEntry.setOldConf(oldConf);
@@ -312,6 +310,20 @@ public class RocksDBLogStorage implements LogStorage, Describer {
         } finally {
             this.readLock.unlock();
         }
+    }
+
+    private static Quorum getQuorum(final LogEntry entry) {
+        if (Objects.nonNull(entry.getQuorum())) {
+            return new Quorum(entry.getQuorum().getW(), entry.getQuorum().getR());
+        }
+        return BallotFactory.buildMajorityQuorum(entry.getPeers().size());
+    }
+
+    private static Quorum getOldQuorum(final LogEntry entry) {
+        if (Objects.nonNull(entry.getOldQuorum())) {
+            return new Quorum(entry.getOldQuorum().getW(), entry.getOldQuorum().getR());
+        }
+        return BallotFactory.buildMajorityQuorum(entry.getOldPeers().size());
     }
 
     private void openDB(final List<ColumnFamilyDescriptor> columnFamilyDescriptors) throws RocksDBException {
