@@ -50,7 +50,7 @@
     <properties>
         <affinity.version>3.27ea1</affinity.version>
         <asm.version>9.9.1</asm.version>
-        <bolt.version>1.6.20.B</bolt.version>
+        <bolt.version>1.6.12.B</bolt.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.io.version>2.21.0</commons.io.version>
         <commons.lang3.version>3.20.0</commons.lang3.version>
