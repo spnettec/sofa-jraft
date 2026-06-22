@@ -46,6 +46,20 @@
         <developerConnection>scm:git:ssh://github.com/alipay/sofa-jraft.git</developerConnection>
         <url>http://github.com/alipay/sofa-jraft/tree/master</url>
     </scm>
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>yofc-maven-release</id>
+            <name>YOFC Releases Repository</name>
+            <url>https://mesmaven.yofc.com/repository/yofc-release/</url>
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>yofc-maven-snapshot</id>
+            <name>YOFC Snapshots Repository</name>
+            <url>https://mesmaven.yofc.com/repository/yofc-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <affinity.version>3.27ea1</affinity.version>
@@ -154,7 +168,7 @@
             </dependency>
             <!-- bolt -->
             <dependency>
-                <groupId>com.github.heyoulin</groupId>
+                <groupId>com.github.heyoulin.sofa-bolt</groupId>
                 <artifactId>sofa-bolt</artifactId>
                 <version>${bolt.version}</version>
             </dependency>
@@ -351,11 +365,18 @@
     </dependencyManagement>
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://www.jitpack.io</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>yofc-maven-public</id>
+            <name>Yofc Public Repository Group</name>
+            <url>https://mesmaven.yofc.com/repository/yofc-public/</url>
         </repository>
     </repositories>
-
     <build>
         <plugins>
             <!-- jacoco coveraage -->

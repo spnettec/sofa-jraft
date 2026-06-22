@@ -1,0 +1,970 @@
+[
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalFileMetaOutter$LocalFileMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$ConfigurationPBMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$File",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$LocalSnapshotPbMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$LogPBMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$StablePBMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.RaftOutter$EntryMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.RaftOutter$SnapshotMeta",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.codec.v2.LogOutter$PBLogEntry",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.codec.v2.LogOutter$Quorum",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$AddLearnersRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$AddPeerRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$AddPeerResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ChangePeersRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ChangePeersResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetLeaderRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetLeaderResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetPeersRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetPeersResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$LearnersOpResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$RemoveLearnersRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$RemovePeerRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$RemovePeerResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetFactorRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetFactorResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetLearnersRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetPeerRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$SnapshotRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$TransferLeaderRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$AppendEntriesRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$AppendEntriesRequestHeader",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$AppendEntriesResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$ErrorResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$GetFileRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$GetFileResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$InstallSnapshotRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$InstallSnapshotResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$PingRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$ReadIndexRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$ReadIndexResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$RequestVoteRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$RequestVoteResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$TimeoutNowRequest",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$TimeoutNowResponse",
+    "methods": [
+      {
+        "name": "parseFrom",
+        "parameterTypes": [
+          "byte[]"
+        ]
+      },
+      {
+        "name": "getDefaultInstance",
+        "parameterTypes": []
+      }
+    ],
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalFileMetaOutter$LocalFileMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$ConfigurationPBMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$File$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$LocalSnapshotPbMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$LogPBMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.LocalStorageOutter$StablePBMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.RaftOutter$EntryMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.RaftOutter$SnapshotMeta$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.codec.v2.LogOutter$PBLogEntry$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.entity.codec.v2.LogOutter$Quorum$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$AddLearnersRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$AddPeerRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$AddPeerResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ChangePeersRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ChangePeersResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetLeaderRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetLeaderResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetPeersRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$GetPeersResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$LearnersOpResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$RemoveLearnersRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$RemovePeerRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$RemovePeerResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetFactorRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetFactorResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetLearnersRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$ResetPeerRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$SnapshotRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.CliRequests$TransferLeaderRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$AppendEntriesRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$AppendEntriesRequestHeader$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$AppendEntriesResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$ErrorResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$GetFileRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$GetFileResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$InstallSnapshotRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$InstallSnapshotResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$PingRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$ReadIndexRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$ReadIndexResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$RequestVoteRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$RequestVoteResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$TimeoutNowRequest$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.alipay.sofa.jraft.rpc.RpcRequests$TimeoutNowResponse$Builder",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  }
+]

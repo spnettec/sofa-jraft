@@ -111,7 +111,7 @@
         </dependency>
         <!-- bolt -->
         <dependency>
-            <groupId>com.github.heyoulin</groupId>
+            <groupId>com.github.heyoulin.sofa-bolt</groupId>
             <artifactId>sofa-bolt</artifactId>
         </dependency>
         <dependency>
