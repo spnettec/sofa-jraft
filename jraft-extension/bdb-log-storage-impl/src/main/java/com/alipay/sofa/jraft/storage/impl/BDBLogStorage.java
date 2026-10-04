@@ -161,7 +161,9 @@ public class BDBLogStorage implements LogStorage, Describer {
                         if (entry.getType() == EntryType.ENTRY_TYPE_CONFIGURATION) {
                             final ConfigurationEntry confEntry = new ConfigurationEntry();
                             confEntry.setId(new LogId(entry.getId().getIndex(), entry.getId().getTerm()));
-                            Quorum quorum = new Quorum(entry.getQuorum().getW(), entry.getQuorum().getR());
+                            // 旧数据/测试数据配置日志可能无 quorum 字段（柔性法定未启用），回退普通 Configuration
+                            Quorum quorum = Objects.nonNull(entry.getQuorum())
+                                ? new Quorum(entry.getQuorum().getW(), entry.getQuorum().getR()) : null;
                             Configuration conf = new Configuration(entry.getPeers(), entry.getLearners(), quorum,
                                 entry.getWriteFactor(), entry.getReadFactor(), entry.getEnableFlexible());
                             confEntry.setConf(conf);
